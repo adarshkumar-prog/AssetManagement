@@ -4,12 +4,16 @@ const connectDB = require("./config/database");
 const User = require("./models/user");
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 
 
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
 
@@ -57,10 +61,34 @@ app.post("/login", async (req, res) => {
             throw new Error("Invalid password");
         }
         else {
+            const token = await jwt.sign({_id : user._id }, "ASSET_MANAGEMENT_SECRET");
+            res.cookie("token", token);
             res.status(200).send("Login successful" + user);
         }
     }catch(err) {
         res.status(400).send("Something went wrong " + err.message);
+    }
+})
+
+app.get("/profile",async (req, res) => {
+    try{
+        const cookies = req.cookies;
+    const { token } = cookies;
+    if(!token) {
+        throw new Error("Invalid token");
+    }
+    const decodedMessage = jwt.verify(token, "ASSET_MANAGEMENT_SECRET");
+    const { _id } = decodedMessage;
+    const user = await User.findById(_id);
+    if(!user) {
+        throw new Error("User not found");
+    }
+    res.status(200).send({
+        "message": "User profile fetched successfully",
+        "user": user
+    });
+    }catch(e){
+        res.status(400).send("Something went wrong " + e.message);
     }
 })
 
