@@ -1,4 +1,5 @@
 const validator = require('validator');
+const Asset = require("../models/asset");
 
 
 const validateSignUpData = (req) => {
@@ -21,6 +22,42 @@ const validateSignUpData = (req) => {
     }
 }
 
+const validateUpdateProfileData = (req) => {
+    try{
+      const ALLOWED_UPDATES = [
+        "firstName",
+        "lastName",
+        "email",
+        "department"
+    ];
+    
+    // Check if the updates are allowed
+    const isUpdateAllowed = Object.keys(req.body).every((update) => 
+        ALLOWED_UPDATES.includes(update));
+    
+    if(!isUpdateAllowed){
+        throw new Error("Invalid update fields");
+    }
+    return isUpdateAllowed;
+    }catch(e){
+        throw new Error(e.message);
+    }
+}
+
+const validateAssetData = async function(req){
+    const { name, serialNumber } = req.body;
+    if (!name || !serialNumber) {
+        throw new Error("Name and serialNumber are required.");
+    }
+    // Check for duplicate serial number
+        const existingAsset = await Asset.findOne({ serialNumber });
+        if (existingAsset) {
+            throw new Error("Asset with this serial number already exists.");
+        }
+}
+
 module.exports = {
     validateSignUpData,
+    validateUpdateProfileData,
+    validateAssetData
 };

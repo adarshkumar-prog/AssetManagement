@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema({
   firstName : {
@@ -41,44 +43,33 @@ const UserSchema = new mongoose.Schema({
       }
     }
   },
-  age : {
-    type : Number,
-    min : 18
+  role: {
+    type: String,
+    enum: ['admin', 'employee'],
+    default: 'employee'
   },
-  gender : {
-    type : String,
-    enum : ['male', 'female', 'other'],
-    default : 'male'
+  department: {
+    type: String,
+    enum: ['HR', 'Finance', 'Engineering', 'Sales', 'Marketing', 'Other'],
+    default: 'Other'
   },
-  currentAddress : {
-    type : String,
-    required : true
-  },
-  permanentAddress : {
-    type : String,
-    required : true
-  },
-  pinCodeCurrent : {
-    type : Number,
-    required : true
-  },
-  pinCodePermanent : {
-    type : Number,
-    required : true
-  },
-  role : {
-    type : String,
-    required : true
-  },
-  skills : {
-    type : [String],
-    validate(value) {
-      if (value.length < 1) {
-        throw new Error('At least one skill is required');
-      }
-    }
-  }
 }, { timestamps : true });
 
+UserSchema.methods.getJWT =  async function() {
+  const user = this;
+  const token = await jwt.sign({_id : user._id }, "ASSET_MANAGEMENT_SECRET" , {
+      expiresIn: "1h"
+  });
+  return token;
+}
+
+UserSchema.methods.ValidatePassword = async function (passwordInputByUser) {
+  const user = this;
+  const passwordHash = user.password;
+
+  const isPasswordValid = await bcrypt.compare(
+    passwordInputByUser, passwordHash);
+  return isPasswordValid;
+}
 
 module.exports = mongoose.model('User', UserSchema);
