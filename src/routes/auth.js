@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const User = require("../models/user");
 const authRouter = express.Router();
 
+//Register a new user
 authRouter.post("/api/auth/register", async (req, res) => {
 
     try{
@@ -31,6 +32,7 @@ authRouter.post("/api/auth/register", async (req, res) => {
     }
 })
 
+// User login (returns JWT token)
 authRouter.post("/api/auth/login", async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -57,6 +59,7 @@ authRouter.post("/api/auth/login", async (req, res) => {
     }
 })
 
+//Logout user
 authRouter.post("/logout", (req, res) => {
     res.cookie("token", null, {
         expires: new Date(Date.now())
