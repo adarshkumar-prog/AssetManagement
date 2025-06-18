@@ -54,7 +54,7 @@ assetRouter.get('/api/assets', userAuth, async (req, res) => {
     }
 
     // Fetch assets from DB with filters and populate assignedTo user
-    const assets = await Asset.find(filters).populate('assignedTo', 'firstName lastName emailId');
+    const assets = await Asset.find(filters).populate('assignedTo', 'firstName lastName email');
 
     res.status(200).json({
       success: true,
