@@ -19,15 +19,15 @@ authRouter.post("/api/auth/register", async (req, res) => {
         const user = new User({firstName, lastName, email, role, department, password: passwordHash});
        
         await user.save();
-        res.status(201).send({
-            "message":"User created successfully"
+        res.status(201).json({
+            "message":"User registered successfully"
         });
     }catch(e){
         if (e.code === 11000) {
             // Duplicate key error
-            res.status(400).send("Email already exists");
+            res.status(400).json({ message: "Email already exists" });
         } else {
-            res.status(400).send(e.message);
+            res.status(400).json({ message: e.message });
         }
     }
 })
@@ -52,10 +52,10 @@ authRouter.post("/api/auth/login", async (req, res) => {
             res.cookie("token", token, {
                 expires: new Date(Date.now() + 3600000), // 1 hour
             });
-            res.status(200).send("Login successful" + user);
+            res.status(200).json({ message: "Login successful", user });
         }
     }catch(err) {
-        res.status(400).send("Something went wrong " + err.message);
+        res.status(400).json({ message: "Something went wrong", error: err.message });
     }
 })
 
@@ -63,7 +63,7 @@ authRouter.post("/api/auth/login", async (req, res) => {
 authRouter.post("/logout", (req, res) => {
     res.cookie("token", null, {
         expires: new Date(Date.now())
-    }).send("Logout successful");
+    }).status(200).json("Logout successful");
 })
 
 module.exports = authRouter;

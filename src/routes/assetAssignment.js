@@ -5,10 +5,16 @@ const Asset = require('../models/asset');
 const User = require('../models/user');
 
 
-// Assign asset to a user
-assetAssignmentRouter.post('/api/assets/:id/assign', async(req, res) => {
+// Assign asset to a user(admin only)
+assetAssignmentRouter.post('/api/assets/:id/assign', userAuth, async(req, res) => {
   const assetId = req.params.id;
   const userId = req.body.userId;
+
+  const userWantsToAssignId = req.body._id;
+  const userWantsToAssign = await User.findById(userWantsToAssignId);
+  if (userWantsToAssign.role !== "admin") {
+    return res.status(403).json({ message: 'Only admin can assign assets' });
+  }
 
   try {
     const asset = await Asset.findById(assetId);
@@ -29,11 +35,16 @@ assetAssignmentRouter.post('/api/assets/:id/assign', async(req, res) => {
   }
 });
 
-// Unassign asset from a user
-assetAssignmentRouter.post('/api/assets/:id/unassign', async(req, res) => {
+// Unassign asset from a user(admin only)
+assetAssignmentRouter.post('/api/assets/:id/unassign', userAuth, async(req, res) => {
   const assetId = req.params.id;
 
   try {
+    const userWantsToUnassignId = req.body._id;
+    const userWantsToUnassign = await User.findById(userWantsToUnassignId);
+    if (userWantsToUnassign.role !== "admin") {
+      return res.status(403).json({ message: 'Only admin can unassign assets' });
+    }
     const asset = await Asset.findById(assetId);
     if (!asset) {
       throw new Error({ message: 'Asset not found' });
@@ -50,15 +61,20 @@ assetAssignmentRouter.post('/api/assets/:id/unassign', async(req, res) => {
   }
 });
 
-// Get all assets assigned to a specific user
-assetAssignmentRouter.get('/api/assets/assigned/:userId', async(req, res) => {
+// Get all assets assigned to a specific user(admin only)
+assetAssignmentRouter.get('/api/assets/assigned/:userId', userAuth, async(req, res) => {
     const userId = req.params.userId;
     try{
+        const userWantsToViewId = req.body._id;
+        const userWantsToView = await User.findById(userWantsToViewId);
+        if(userWantsToView.role !== "admin"){
+            return res.status(403).json({ message: 'Only admin can view assigned assets' });
+        }
         const user = await User.findById(userId);
         if(!user){
             throw new Error({message: 'User not found'});
         }
-        const assignedAssets = await Asset.find({ assignedTo: userId });
+        const assignedAssets = await Asset.find({ assignedTo: userId }).populate('assignedTo', 'firstName lastName email');
         res.status(200).json({ assignedAssets });
     }catch(error) {
         console.error('Error fetching assigned assets:', error);

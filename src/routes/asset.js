@@ -3,13 +3,18 @@ const assetRouter = express.Router();
 const { userAuth } = require('../middleware/auth');
 const Asset = require('../models/asset');
 const { validateAssetData } = require('../utils/validation');
-const user = require('../models/user');
+const User = require('../models/user');
 
 
-//Create new asset
-assetRouter.post('/api/assets', userAuth, async (req, res) => {
+//Create new asset (admin only)
+assetRouter.post('/api/assets/:id', userAuth, async (req, res) => {
   try {
     const { name, serialNumber, status, assignedTo } = req.body;
+    const userWantsToCreateId = req.params.id;
+    const userWantsToCreate = await User.findById(userWantsToCreateId);
+    if(userWantsToCreate.role !== "admin"){
+        throw new Error("Only admin can create assets");
+    }
 
     await validateAssetData(req);
 
@@ -37,10 +42,16 @@ assetRouter.post('/api/assets', userAuth, async (req, res) => {
   }
 });
 
-//Get all assets with filtering options
+//Get all assets with filtering options (admin only)
 assetRouter.get('/api/assets', userAuth, async (req, res) => {
   try {
     const { name, status, assignedTo } = req.query;
+    const userWantsToViewId = req.body._id;
+    const userWantsToView = await User.findById(userWantsToViewId);
+    // Check if user is admin
+    if (userWantsToView.role !== "admin") {
+      throw new Error("Only admin can view assets");
+    }
 
     const filters = {};
 
@@ -70,10 +81,17 @@ assetRouter.get('/api/assets', userAuth, async (req, res) => {
   }
 });
 
-//Get asset by ID
+//Get asset by ID (admin only)
 assetRouter.get('/api/assets/:id', userAuth, async (req, res) => {
   try {
     const assetId = req.params.id;
+
+    const userWantsToViewId = req.body._id;
+    const userWantsToView = await User.findById(userWantsToViewId);
+    // Check if user is admin
+    if (userWantsToView.role !== "admin") {
+      throw new Error("Only admin can view asset details");
+    }
 
     // Find asset by ID and populate assignedTo user
     const asset = await Asset.findById(assetId).populate('assignedTo', 'firstName lastName emailId');
@@ -98,10 +116,15 @@ assetRouter.get('/api/assets/:id', userAuth, async (req, res) => {
   }
 });
 
-// Update asset information
+// Update asset information (admin only)
 assetRouter.patch('/api/assets/:id', userAuth, async (req, res) => {
     try{
         const assetId = req.params.id;
+        const userWantsToUpdateId = req.body._id;
+        const userWantsToUpdate = await User.findById(userWantsToUpdateId);
+        if(userWantsToUpdate.role !== "admin"){
+            throw new Error("Only admin can update assets");
+        }
         const { name, serialNumber, status, assignedTo } = req.body;
 
         // Find asset by ID
@@ -145,12 +168,14 @@ assetRouter.delete('/api/assets/:id', userAuth, async (req, res) => {
 
         // Find asset by ID
         const asset = await Asset.findById(assetId);
-        const userWantsToDelete = req.user;
+        const userWantsToDeleteId = req.body._id;
+        const userWantsToDelete = await User.findById(userWantsToDeleteId);
+        // Check if user is admin
         if(userWantsToDelete.role !== "admin"){
             throw new Error("Only admin can delete assets");
         }
         if (!asset) {
-            throw new Error('Asset  already not present');
+            throw new Error('Asset already not present');
         }
         // Delete asset
         await Asset.findByIdAndDelete(assetId);

@@ -33,20 +33,14 @@ const UserSchema = new mongoose.Schema({
       if(value.length < 6){
         throw new Error('Password must be at least 6 characters');
       }
-      if(validator.isStrongPassword(value)){
+      if(!(validator.isStrongPassword(value))){
         throw new Error('Password is not strong enough' + value);
       }
     },
-    validate(value){
-      if(!validator.isStrongPassword(value)){
-        throw new Error('Password is not strong enough' + value);
-      }
-    }
   },
   role: {
     type: String,
-    enum: ['admin', 'employee'],
-    default: 'employee'
+    enum: ['employee']
   },
   department: {
     type: String,

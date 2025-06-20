@@ -2,11 +2,18 @@ const express = require('express');
 const assetReportingRouter = express.Router();
 const Asset = require('../models/asset');
 const User = require('../models/user');
+const { userAuth } = require('../middleware/auth');
 
-// Get count of assets by status
-assetReportingRouter.get('/api/reports/assets-by-status', async (req, res) => {
+// Get count of assets by status(admin only)
+assetReportingRouter.get('/api/reports/assets-by-status', userAuth, async (req, res) => {
 
     try {
+        const userWantsToViewId = req.body._id;
+        const userWantsToView = await User.findById(userWantsToViewId);
+        // Check if user is admin
+        if (userWantsToView.role !== "admin") {
+            return res.status(403).json({ message: 'Only admin can view asset counts by status' });
+        }
         const assetCounts = await Asset.aggregate([
         {
             $group: {
@@ -38,9 +45,15 @@ assetReportingRouter.get('/api/reports/assets-by-status', async (req, res) => {
     }
 })
 
-//Get count of assets by type
-assetReportingRouter.get('/api/reports/assets-by-type', async (req, res) => {
+//Get count of assets by type(admin only)
+assetReportingRouter.get('/api/reports/assets-by-type', userAuth, async (req, res) => {
     try {
+        const userWantsToViewId = req.body._id;
+        const userWantsToView = await User.findById(userWantsToViewId);
+        // Check if user is admin
+        if (userWantsToView.role !== "admin") {
+            return res.status(403).json({ message: 'Only admin can view asset counts by type' });
+        }
         const assetCounts = await Asset.aggregate([
         {
             $group: {
@@ -74,9 +87,15 @@ assetReportingRouter.get('/api/reports/assets-by-type', async (req, res) => {
     }
 });
 
-//Get assignment summary for all users
-assetReportingRouter.get('/api/reports/assignment-summary', async (req, res) => {
+//Get assignment summary for all users(admin only)
+assetReportingRouter.get('/api/reports/assignment-summary', userAuth, async (req, res) => {
     try {
+        const userWantsToViewId = req.body._id;
+        const userWantsToView = await User.findById(userWantsToViewId);
+        // Check if user is admin
+        if (userWantsToView.role !== "admin") {
+            return res.status(403).json({ message: 'Only admin can view assignment summary' });
+        }
         const assetCounts = await Asset.aggregate([
             {
                 $match: {
