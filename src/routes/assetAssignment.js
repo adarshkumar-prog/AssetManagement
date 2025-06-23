@@ -10,7 +10,7 @@ assetAssignmentRouter.post('/api/assets/:id/assign', userAuth, async(req, res) =
   const assetId = req.params.id;
   const userId = req.body.userId;
 
-  const userWantsToAssignId = req.body._id;
+  const userWantsToAssignId = req.user._id;
   const userWantsToAssign = await User.findById(userWantsToAssignId);
   if (userWantsToAssign.role !== "admin") {
     return res.status(403).json({ message: 'Only admin can assign assets' });
@@ -40,7 +40,7 @@ assetAssignmentRouter.post('/api/assets/:id/unassign', userAuth, async(req, res)
   const assetId = req.params.id;
 
   try {
-    const userWantsToUnassignId = req.body._id;
+    const userWantsToUnassignId = req.user._id;
     const userWantsToUnassign = await User.findById(userWantsToUnassignId);
     if (userWantsToUnassign.role !== "admin") {
       return res.status(403).json({ message: 'Only admin can unassign assets' });
@@ -65,7 +65,7 @@ assetAssignmentRouter.post('/api/assets/:id/unassign', userAuth, async(req, res)
 assetAssignmentRouter.get('/api/assets/assigned/:userId', userAuth, async(req, res) => {
     const userId = req.params.userId;
     try{
-        const userWantsToViewId = req.body._id;
+        const userWantsToViewId = req.user._id;
         const userWantsToView = await User.findById(userWantsToViewId);
         if(userWantsToView.role !== "admin"){
             return res.status(403).json({ message: 'Only admin can view assigned assets' });
@@ -83,7 +83,7 @@ assetAssignmentRouter.get('/api/assets/assigned/:userId', userAuth, async(req, r
 })
 
 // Get all available (unassigned) assets
-assetAssignmentRouter.get('/api/assetsIsAvailable', async(req, res) => {
+assetAssignmentRouter.get('/api/assetsIsAvailable', userAuth, async(req, res) => {
     try {
         const availableAssets = await Asset.find({ status: 'Available' });
         if (availableAssets.length === 0) {

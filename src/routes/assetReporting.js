@@ -8,7 +8,7 @@ const { userAuth } = require('../middleware/auth');
 assetReportingRouter.get('/api/reports/assets-by-status', userAuth, async (req, res) => {
 
     try {
-        const userWantsToViewId = req.body._id;
+        const userWantsToViewId = req.user._id;
         const userWantsToView = await User.findById(userWantsToViewId);
         // Check if user is admin
         if (userWantsToView.role !== "admin") {
@@ -48,7 +48,7 @@ assetReportingRouter.get('/api/reports/assets-by-status', userAuth, async (req, 
 //Get count of assets by type(admin only)
 assetReportingRouter.get('/api/reports/assets-by-type', userAuth, async (req, res) => {
     try {
-        const userWantsToViewId = req.body._id;
+        const userWantsToViewId = req.user._id;
         const userWantsToView = await User.findById(userWantsToViewId);
         // Check if user is admin
         if (userWantsToView.role !== "admin") {
@@ -90,7 +90,7 @@ assetReportingRouter.get('/api/reports/assets-by-type', userAuth, async (req, re
 //Get assignment summary for all users(admin only)
 assetReportingRouter.get('/api/reports/assignment-summary', userAuth, async (req, res) => {
     try {
-        const userWantsToViewId = req.body._id;
+        const userWantsToViewId = req.user._id;
         const userWantsToView = await User.findById(userWantsToViewId);
         // Check if user is admin
         if (userWantsToView.role !== "admin") {

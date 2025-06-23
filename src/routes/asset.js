@@ -7,10 +7,10 @@ const User = require('../models/user');
 
 
 //Create new asset (admin only)
-assetRouter.post('/api/assets/:id', userAuth, async (req, res) => {
+assetRouter.post('/api/assets', userAuth, async (req, res) => {
   try {
     const { name, serialNumber, status, assignedTo } = req.body;
-    const userWantsToCreateId = req.params.id;
+    const userWantsToCreateId = req.user.id;
     const userWantsToCreate = await User.findById(userWantsToCreateId);
     if(userWantsToCreate.role !== "admin"){
         throw new Error("Only admin can create assets");
@@ -46,7 +46,7 @@ assetRouter.post('/api/assets/:id', userAuth, async (req, res) => {
 assetRouter.get('/api/assets', userAuth, async (req, res) => {
   try {
     const { name, status, assignedTo } = req.query;
-    const userWantsToViewId = req.body._id;
+    const userWantsToViewId = req.user._id;
     const userWantsToView = await User.findById(userWantsToViewId);
     // Check if user is admin
     if (userWantsToView.role !== "admin") {
@@ -86,7 +86,7 @@ assetRouter.get('/api/assets/:id', userAuth, async (req, res) => {
   try {
     const assetId = req.params.id;
 
-    const userWantsToViewId = req.body._id;
+    const userWantsToViewId = req.user._id;
     const userWantsToView = await User.findById(userWantsToViewId);
     // Check if user is admin
     if (userWantsToView.role !== "admin") {
@@ -120,7 +120,7 @@ assetRouter.get('/api/assets/:id', userAuth, async (req, res) => {
 assetRouter.patch('/api/assets/:id', userAuth, async (req, res) => {
     try{
         const assetId = req.params.id;
-        const userWantsToUpdateId = req.body._id;
+        const userWantsToUpdateId = req.user._id;
         const userWantsToUpdate = await User.findById(userWantsToUpdateId);
         if(userWantsToUpdate.role !== "admin"){
             throw new Error("Only admin can update assets");
@@ -168,7 +168,7 @@ assetRouter.delete('/api/assets/:id', userAuth, async (req, res) => {
 
         // Find asset by ID
         const asset = await Asset.findById(assetId);
-        const userWantsToDeleteId = req.body._id;
+        const userWantsToDeleteId = req.user._id;
         const userWantsToDelete = await User.findById(userWantsToDeleteId);
         // Check if user is admin
         if(userWantsToDelete.role !== "admin"){

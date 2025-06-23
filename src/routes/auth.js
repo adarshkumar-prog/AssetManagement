@@ -49,10 +49,12 @@ authRouter.post("/api/auth/login", async (req, res) => {
         }
         else {
             const token = await user.getJWT();
-            res.cookie("token", token, {
-                expires: new Date(Date.now() + 3600000), // 1 hour
-            });
-            res.status(200).json({ message: "Login successful", user });
+            res.status(200).json({ 
+    message: "Login successful", 
+    token,  // <--- Send token to frontend
+    user 
+});
+
         }
     }catch(err) {
         res.status(400).json({ message: "Something went wrong", error: err.message });
