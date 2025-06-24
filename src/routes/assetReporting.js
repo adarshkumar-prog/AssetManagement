@@ -4,7 +4,25 @@ const Asset = require('../models/asset');
 const User = require('../models/user');
 const { userAuth } = require('../middleware/auth');
 
+
 // Get count of assets by status(admin only)
+/**
+ * @swagger
+ * /api/reports/assets-by-status:
+ *   get:
+ *     summary: Get count of assets by status
+ *     tags: [Asset Reporting]
+ *     description: This endpoint allows an admin to view the count of assets grouped by their status.
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved asset counts by status
+ *       403:
+ *         description: Forbidden - Only admin can view asset counts by status
+ *       500:
+ *         description: Internal server error
+ *     security:
+ *       - bearerAuth: []
+ */
 assetReportingRouter.get('/api/reports/assets-by-status', userAuth, async (req, res) => {
 
     try {
@@ -46,6 +64,23 @@ assetReportingRouter.get('/api/reports/assets-by-status', userAuth, async (req, 
 })
 
 //Get count of assets by type(admin only)
+/**
+ * @swagger
+ * /api/reports/assets-by-type:
+ *   get:
+ *     summary: Get count of assets by type
+ *     tags: [Asset Reporting]
+ *     description: This endpoint allows an admin to view the count of assets grouped by their type.
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved asset counts by type
+ *       403:
+ *         description: Forbidden - Only admin can view asset counts by type
+ *       500:
+ *         description: Internal server error
+ *     security:
+ *       - bearerAuth: []
+ */
 assetReportingRouter.get('/api/reports/assets-by-type', userAuth, async (req, res) => {
     try {
         const userWantsToViewId = req.user._id;
@@ -88,6 +123,23 @@ assetReportingRouter.get('/api/reports/assets-by-type', userAuth, async (req, re
 });
 
 //Get assignment summary for all users(admin only)
+/**
+ * @swagger
+ * /api/reports/assignment-summary:
+ *   get:
+ *     summary: Get assignment summary for all users
+ *     tags: [Asset Reporting]
+ *     description: This endpoint allows an admin to view a summary of asset assignments for all users.
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved assignment summary
+ *       403:
+ *         description: Forbidden - Only admin can view assignment summary
+ *       500:
+ *         description: Internal server error
+ *     security:
+ *       - bearerAuth: []
+ */
 assetReportingRouter.get('/api/reports/assignment-summary', userAuth, async (req, res) => {
     try {
         const userWantsToViewId = req.user._id;

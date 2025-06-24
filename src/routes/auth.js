@@ -4,14 +4,31 @@ const bcrypt = require('bcrypt');
 const User = require("../models/user");
 const authRouter = express.Router();
 
-//Register a new user
+///Register a new user
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     description: This endpoint allows a new user to register.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ */
 authRouter.post("/api/auth/register", async (req, res) => {
 
     try{
         //Validate the request body
         validateSignUpData(req);
 
-        const { firstName, lastName, email, role, department, password } = req.body;
+        const { firstName, lastName, email, password, department, role } = req.body;
         const passwordHash = await bcrypt.hash(password, 10);
 
         // Creating a new instance of User model
@@ -33,6 +50,28 @@ authRouter.post("/api/auth/register", async (req, res) => {
 })
 
 // User login (returns JWT token)
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Login to get JWT
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ */
+
 authRouter.post("/api/auth/login", async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -62,6 +101,16 @@ authRouter.post("/api/auth/login", async (req, res) => {
 })
 
 //Logout user
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: User logged out successfully
+ */
 authRouter.post("/logout", (req, res) => {
     res.cookie("token", null, {
         expires: new Date(Date.now())

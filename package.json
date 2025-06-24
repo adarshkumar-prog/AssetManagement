@@ -2,9 +2,9 @@
   "name": "companyassetmanagement",
   "version": "1.0.0",
   "description": "asset management of company",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "main" : "app.js",
+  "scripts":{
+    "start":"node src/app.js"
   },
   "keywords": [
     "nodejs",
@@ -18,6 +18,12 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "validator": "^13.15.15"
+  },
+  "devDependencies": {
+    "autogen": "^0.0.1",
+    "swagger": "^0.7.5"
   }
 }

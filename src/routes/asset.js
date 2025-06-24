@@ -6,6 +6,7 @@ const { validateAssetData } = require('../utils/validation');
 const User = require('../models/user');
 
 
+
 //Create new asset (admin only)
 assetRouter.post('/api/assets', userAuth, async (req, res) => {
   try {
