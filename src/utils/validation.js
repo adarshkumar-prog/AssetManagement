@@ -18,7 +18,6 @@ const validateSignUpData = (req) => {
     }
     else if(!validator.isStrongPassword(password)) {
         throw new Error("Please enter a strong password");
-
     }
 }
 
