@@ -3,6 +3,7 @@ const { validateSignUpData } = require("../utils/validation");
 const bcrypt = require('bcrypt');
 const User = require("../models/user");
 const authRouter = express.Router();
+const { userAuth } = require("../middleware/auth");
 
 ///Register a new user
 /**
@@ -33,7 +34,7 @@ authRouter.post("/api/auth/register", async (req, res) => {
 
         // Creating a new instance of User model
         // and saving it to the database
-        const user = new User({firstName, lastName, email, role, department, password: passwordHash});
+        const user = new User({firstName, lastName, email, role, department, password: passwordHash, assignedAssets: [], previouslyAssignedAssets: []});
        
         await user.save();
         res.status(201).json({
@@ -87,10 +88,11 @@ authRouter.post("/api/auth/login", async (req, res) => {
             throw new Error("Invalid password");
         }
         else {
+            user.password = undefined;
             const token = await user.getJWT();
             res.status(200).json({ 
     message: "Login successful", 
-    token,  // <--- Send token to frontend
+    token,
     user 
 });
 
@@ -111,7 +113,8 @@ authRouter.post("/api/auth/login", async (req, res) => {
  *       200:
  *         description: User logged out successfully
  */
-authRouter.post("/logout", (req, res) => {
+authRouter.post("/logout", userAuth, (req, res) => {
+    
     res.cookie("token", null, {
         expires: new Date(Date.now())
     }).status(200).json("Logout successful");

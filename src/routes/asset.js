@@ -49,6 +49,13 @@ assetRouter.post('/api/assets', userAuth, async (req, res) => {
     if(userWantsToCreate.role !== "admin"){
         throw new Error("Only admin can create assets");
     }
+    const isAlreadyExists = await Asset.findOne({ serialNumber });
+    if (isAlreadyExists) {
+      return res.status(400).json({
+        success: false,
+        message: 'Asset with this serial number already exists'
+      });
+    }
 
     await validateAssetData(req);
 
@@ -57,7 +64,9 @@ assetRouter.post('/api/assets', userAuth, async (req, res) => {
       name,
       serialNumber,
       status: status || 'Available',
-      assignedTo: assignedTo || null
+      assignedTo: assignedTo || null,
+      assignedAt: null,
+      previouslyAssignedTo: []
     });
 
     const savedAsset = await asset.save();

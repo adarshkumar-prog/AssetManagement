@@ -19,11 +19,6 @@ const assetSchema = new mongoose.Schema({
         required: true,
         default: "Available"
     },
-    assignedTo: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        default: null
-    }
 }, {
     timestamps: true
 });

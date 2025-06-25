@@ -81,6 +81,7 @@ profileRouter.get("/api/users/:id", userAuth, async (req, res) => {
         if(!user){
             throw new Error("User not found");
         }
+        user.password = undefined;
         res.status(200).json({
             "message":"User fetched successfully",
             "user": user
@@ -109,6 +110,9 @@ profileRouter.get("/api/users", userAuth, async (req, res) => {
             throw new Error("Only admin can view all users");
         }
         const users = await User.find({});
+        users.forEach(user => {
+            user.password = undefined; // Hide password from response
+        });
         res.status(200).json(users);
     }catch(e){
         res.status(400).json({ message: "Something went wrong", error: e.message });
