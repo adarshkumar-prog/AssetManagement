@@ -4,6 +4,7 @@ const { userAuth } = require('../middleware/auth');
 const Asset = require('../models/asset');
 const { validateAssetData } = require('../utils/validation');
 const User = require('../models/user');
+const AssetAssignment = require('../models/assetAssignementModel');
 
 
 
@@ -63,10 +64,7 @@ assetRouter.post('/api/assets', userAuth, async (req, res) => {
     const asset = new Asset({
       name,
       serialNumber,
-      status: status || 'Available',
-      assignedTo: assignedTo || null,
-      assignedAt: null,
-      previouslyAssignedTo: []
+      status: status || 'Available'
     });
 
     const savedAsset = await asset.save();
@@ -119,24 +117,29 @@ assetRouter.get('/api/assets', userAuth, async (req, res) => {
     const { name, status, assignedTo } = req.query;
     const userWantsToViewId = req.user._id;
     const userWantsToView = await User.findById(userWantsToViewId);
-    // Check if user is admin
     if (userWantsToView.role !== "admin") {
       throw new Error("Only admin can view assets");
     }
 
-    const filters = {};
+    let assets = [];
 
-    // Optional filters from query params
-    if (name) filters.name = name;
-    if (status) filters.status = status;
-    if (assignedTo === 'null') {
-      filters.assignedTo = null;
-    } else if (assignedTo) {
-      filters.assignedTo = assignedTo;
+    if (status === 'Assigned') {
+      const assetFilter = {};
+      if (name) assetFilter.name = name;
+      const assetIds = await Asset.find(assetFilter).distinct('_id');
+
+      const assignmentFilter = { assetId: { $in: assetIds }, status: 'Assigned' };
+      if (assignedTo) assignmentFilter.assignedTo = assignedTo;
+
+      assets = await AssetAssignment.find(assignmentFilter)
+        .populate('assetId', 'name serialNumber status')
+        .populate('assignedTo', 'firstName lastName email');
+    } else {
+      const assetFilter = {};
+      if (name) assetFilter.name = name;
+      if (status) assetFilter.status = status;
+      assets = await Asset.find(assetFilter);
     }
-
-    // Fetch assets from DB with filters and populate assignedTo user
-    const assets = await Asset.find(filters).populate('assignedTo', 'firstName lastName email');
 
     res.status(200).json({
       success: true,
@@ -189,7 +192,7 @@ assetRouter.get('/api/assets/:id', userAuth, async (req, res) => {
     }
 
     // Find asset by ID and populate assignedTo user
-    const asset = await Asset.findById(assetId).populate('assignedTo', 'firstName lastName emailId');
+    const asset = await Asset.findById(assetId);
 
     if (!asset) {
       return res.status(404).json({
@@ -198,11 +201,24 @@ assetRouter.get('/api/assets/:id', userAuth, async (req, res) => {
       });
     }
 
+    if(asset.status === 'Assigned') {
+      const assignment = await AssetAssignment.findOne({ assetId: asset._id, status: 'Assigned' })
+        .populate('assignedTo', 'firstName lastName email');
+      return res.status(200).json({
+        success: true,
+        data: {
+          ...asset.toObject(),
+          assignedTo: assignment ? assignment.assignedTo : null
+        }
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: asset
     });
-  } catch (error) {
+  }
+  catch (error) {
     res.status(500).json({
       success: false,
       message: 'Server Error',
@@ -263,28 +279,24 @@ assetRouter.patch('/api/assets/:id', userAuth, async (req, res) => {
         if(userWantsToUpdate.role !== "admin"){
             throw new Error("Only admin can update assets");
         }
-        const { name, serialNumber, status, assignedTo } = req.body;
+        const { name, serialNumber, status } = req.body;
 
-        // Find asset by ID
         const asset = await Asset.findById(assetId);
         if (!asset) {
             throw new Error('Asset not found');
         }
 
-        // Update asset fields
+        if(asset.status === 'Assigned' && status !== 'Assigned') {
+          const assignment = await AssetAssignment.findOne({ assetId: asset._id, status: 'Assigned' });
+          assignment.status = 'Unassigned';
+          assignment.unassignedAt = new Date();
+          await assignment.save();
+        }
+
         if (name) asset.name = name;
         if (serialNumber) asset.serialNumber = serialNumber;
         if (status) asset.status = status;
-        if (assignedTo) {
-            // If assignedTo is null, set it to null
-            if (assignedTo === 'null') {
-                asset.assignedTo = null;
-            } else {
-                asset.assignedTo = assignedTo;
-            }
-        }
         await asset.save();
-        // Return success response
         res.status(200).json({
             success: true,
             message: 'Asset updated successfully',
@@ -326,19 +338,17 @@ assetRouter.delete('/api/assets/:id', userAuth, async (req, res) => {
     try{
         const assetId = req.params.id;
 
-        // Find asset by ID
         const asset = await Asset.findById(assetId);
         const userWantsToDeleteId = req.user._id;
         const userWantsToDelete = await User.findById(userWantsToDeleteId);
-        // Check if user is admin
         if(userWantsToDelete.role !== "admin"){
             throw new Error("Only admin can delete assets");
         }
         if (!asset) {
             throw new Error('Asset already not present');
         }
-        // Delete asset
         await Asset.findByIdAndDelete(assetId);
+        await AssetAssignment.deleteMany({ assetId: assetId });
         res.status(200).json({
             success: true,
             message: 'Asset deleted successfully'

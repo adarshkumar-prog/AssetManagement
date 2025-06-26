@@ -22,6 +22,8 @@ app.use("/", profileRouter);
 app.use("/", assetRouter);
 app.use("/", assetAssignmentRouter);
 app.use("/", assetReportingRouter);
+
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 

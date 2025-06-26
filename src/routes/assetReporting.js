@@ -3,6 +3,7 @@ const assetReportingRouter = express.Router();
 const Asset = require('../models/asset');
 const User = require('../models/user');
 const { userAuth } = require('../middleware/auth');
+const AssetAssignment = require('../models/assetAssignementModel');
 
 
 // Get count of assets by status(admin only)
@@ -148,53 +149,35 @@ assetReportingRouter.get('/api/reports/assignment-summary', userAuth, async (req
         if (userWantsToView.role !== "admin") {
             return res.status(403).json({ message: 'Only admin can view assignment summary' });
         }
-        const assetCounts = await Asset.aggregate([
+        const assignmentSummary = await AssetAssignment.aggregate([
             {
-                $match: {
-                    assignedTo: { $ne: null } // Exclude unassigned assets
+                $group: {
+                    _id: {
+                        user: '$assignedTo',
+                        unassignedAt: '$unassignedAt'
+                    },
+                    assignedAssets: { $sum: 1 }
                 }
             },
-        {
-            $group: {
-            _id: '$assignedTo',
-            count: { $sum: 1 },
-            name : { $push: '$name' } // Collect asset names assigned to each user
-            }
-        },
-        {
-            $lookup: {
-            from: 'users',
-            localField: '_id',
-            foreignField: '_id',
-            as: 'user'
-            }
-        },
-         {
-                $match: {
-                    user: { $ne: [] } // Exclude if no matching user found
+            {
+                $project: {
+                    _id: 0,
+                    user: '$_id.user',
+                    assignedAssets: 1,
+                    unassignedAt: '$_id.unassignedAt'
                 }
-            },
-        {
-            $project: {
-            _id: 0,
-            user: { $arrayElemAt: ['$user', 0] },
-            assignedAssets: '$name'
             }
-        }
         ]);
-        // Sort by count in descending order
-        assetCounts.sort((a, b) => b.count - a.count);
-
         res.status(200).json({
-        success: true,
-        data: assetCounts
+            success: true,
+            data: assignmentSummary
         });
     } catch (error) {
         console.error('Error fetching assignment summary:', error);
         res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: error.message
+            success: false,
+            message: 'Internal server error',
+            error: error.message
         });
     }
 });

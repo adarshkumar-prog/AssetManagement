@@ -102,22 +102,4 @@ authRouter.post("/api/auth/login", async (req, res) => {
     }
 })
 
-//Logout user
-/**
- * @swagger
- * /api/auth/logout:
- *   post:
- *     summary: Logout user
- *     tags: [Auth]
- *     responses:
- *       200:
- *         description: User logged out successfully
- */
-authRouter.post("/logout", userAuth, (req, res) => {
-    
-    res.cookie("token", null, {
-        expires: new Date(Date.now())
-    }).status(200).json("Logout successful");
-})
-
 module.exports = authRouter;

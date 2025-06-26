@@ -63,8 +63,6 @@ assetAssignmentRouter.post('/api/assets/:id/assign', userAuth, async(req, res) =
     if(asset.status !== 'Available') {
       return res.status(400).json({ message: 'Asset is not available for assignment' });
     }
-
-    asset.assignedTo = userId;
     asset.status = 'Assigned';
     await asset.save();
 
@@ -179,7 +177,23 @@ assetAssignmentRouter.get('/api/assets/assigned/:userId', userAuth, async(req, r
         if(!user){
             throw new Error({message: 'User not found'});
         }
-        const assignedAssets = await Asset.find({ assignedTo: userId }).populate('assignedTo', 'firstName lastName email');
+        const assignedAsset = await AssetAssignment.find({ assignedTo: userId })
+            .populate('assetId', 'name serialNumber status')
+            .populate('assignedTo', 'firstName lastName email');
+        if (assignedAsset.length === 0) {
+            return res.status(404).json({ message: 'No assets assigned to this user' });
+        }
+        const assignedAssets = assignedAsset.map(assignment => ({
+            asset: assignment.assetId,
+            assignedAt: assignment.assignedAt,
+            status: assignment.status,
+            unassignedAt: assignment.unassignedAt,
+            assignedTo: {
+                firstName: assignment.assignedTo.firstName,
+                lastName: assignment.assignedTo.lastName,
+                email: assignment.assignedTo.email
+            }
+        }));
         res.status(200).json({ assignedAssets });
     }catch(error) {
         console.error('Error fetching assigned assets:', error);
@@ -231,7 +245,22 @@ assetAssignmentRouter.get('/api/assets/previouslyAssigned/:userId', userAuth, as
         if(!user){
             throw new Error({message: 'User not found'});
         }
-        const previouslyAssignedAssets = await Asset.find({ 'previouslyAssignedTo.userId': userId }).populate('previouslyAssignedTo.userId', 'firstName lastName email');
+        const previouslyAssignedAsset = await AssetAssignment.find({ assignedTo: userId, status: 'Unassigned' })
+            .populate('assetId', 'name serialNumber status')
+            .populate('assignedTo', 'firstName lastName email');
+        if (previouslyAssignedAsset.length === 0) {
+            return res.status(404).json({ message: 'No previously assigned assets found for this user' });
+        }
+        const previouslyAssignedAssets = previouslyAssignedAsset.map(assignment => ({
+            asset: assignment.assetId,
+            assignedAt: assignment.assignedAt,
+            unassignedAt: assignment.unassignedAt,
+            assignedTo: {
+                firstName: assignment.assignedTo.firstName,
+                lastName: assignment.assignedTo.lastName,
+                email: assignment.assignedTo.email
+            }
+        }));
         res.status(200).json({ previouslyAssignedAssets });
     }catch(error) {
         console.error('Error fetching previously assigned assets:', error);
@@ -248,40 +277,28 @@ assetAssignmentRouter.post('/api/assets/:id/return', userAuth, async(req, res) =
     if (!asset) {
       return res.status(404).json({ message: 'Asset not found' });
     }
-    if (asset.assignedTo.toString() !== userId.toString()) {
-      return res.status(403).json({ message: 'You are not authorized to return this asset' });
-    }
     if (asset.status !== 'Assigned') {
       return res.status(400).json({ message: 'Asset is not currently assigned' });
     }
-
-    // Unassign the asset
-    asset.previouslyAssignedTo.push({
-      userId: asset.assignedTo,
-      assignedAt: asset.assignedAt,
-      unassignedAt: new Date()
-    });
-    const user = await User.findById(userId);
-    user.assignedAssets.pull(assetId);
-    user.previouslyAssignedAssets.push({
-      assetId: asset._id,
-      assignedAt: asset.assignedAt,
-      unassignedAt: new Date()
-    });
-    asset.assignedTo = null;
-    asset.assignedAt = null;
+    const assetAssignment = await AssetAssignment.findOne({ assetId: asset._id, assignedTo: userId, status: 'Assigned' });
+    if (!assetAssignment) {
+      return res.status(403).json({ message: 'You are not authorized to return this asset' });
+    }
     asset.status = 'Available';
-
+    assetAssignment.status = 'Unassigned';
+    assetAssignment.unassignedAt = new Date();
+    
     await asset.save();
-    await user.save();
-    res.status(200).json({ message: 'Asset returned successfully' });
+    await assetAssignment.save();
+
+    res.status(200).json({ message: 'Asset returned successfully', asset });
   }catch(error) {
     console.error('Error returning asset:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 })
 
-// Get all asset assigned between certain time period (admin only)
+// Get all asset assigned and unassigned between certain time period (admin only)
 assetAssignmentRouter.get('/api/asset/assignedBetween', userAuth, async(req, res) => {
   const { startDate, endDate } = req.query;
 
@@ -289,34 +306,29 @@ assetAssignmentRouter.get('/api/asset/assignedBetween', userAuth, async(req, res
     const userWantsToViewId = req.user._id;
     const userWantsToView = await User.findById(userWantsToViewId);
     if (userWantsToView.role !== "admin") {
-      return res.status(403).json({ message: 'Only admin can view assets assigned between certain time period' });
+      return res.status(403).json({ message: 'Only admin can view assigned assets between dates' });
     }
 
-    if (!startDate || !endDate) {
-      return res.status(400).json({ message: 'Start date and end date are required' });
-    }
-
-    const assets = await Asset.find({
-  $or: [
-    {
-      assignedAt: { $ne: null, $lte: new Date(endDate) },
+    const assignedAssets = await AssetAssignment.find({
       $or: [
         { assignedAt: { $gte: new Date(startDate), $lte: new Date(endDate) } },
-        { assignedAt: { $lte: new Date(startDate) }, status: 'Assigned' }
+        { unassignedAt: { $gte: new Date(startDate), $lte: new Date(endDate) } }
       ]
-    },
-    {
-      previouslyAssignedTo: {
-        $elemMatch: {
-          assignedAt: { $lte: new Date(endDate) },
-          unassignedAt: { $gte: new Date(startDate) }
-        }
-      }
-    }
-  ]
-}).populate('assignedTo', 'firstName lastName email');
+    })
+      .populate('assignedTo', 'firstName lastName email')
+      .populate('assetId', 'name serialNumber status')
+      .exec();
 
-    res.status(200).json({ assets});
+    assignedAssets.forEach(assignment => {
+      if (assignment.assignedAt) assignment.assignedAt = assignment.assignedAt.toISOString();
+      if (assignment.unassignedAt) assignment.unassignedAt = assignment.unassignedAt.toISOString();
+    });
+    if (assignedAssets.length === 0) {
+      return res.status(404).json({ message: 'No assets assigned between the given dates' });
+    }
+    res.status(200).json({
+      assignedAssets
+    })
   } catch (error) {
     console.error('Error fetching assets assigned between dates:', error);
     res.status(500).json({ message: 'Internal server error' });
