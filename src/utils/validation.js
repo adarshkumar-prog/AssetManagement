@@ -1,7 +1,6 @@
 const validator = require('validator');
 const Asset = require("../models/asset");
 
-
 const validateSignUpData = (req) => {
     const { firstName, lastName, email, password } = req.body;
     if (!firstName || !lastName || !email || !password) {
@@ -20,7 +19,6 @@ const validateSignUpData = (req) => {
         throw new Error("Please enter a strong password");
     }
 }
-
 const validateUpdateProfileData = (req) => {
     try{
       const ALLOWED_UPDATES = [
@@ -42,7 +40,6 @@ const validateUpdateProfileData = (req) => {
         throw new Error(e.message);
     }
 }
-
 const validateAssetData = async function(req){
     const { name, serialNumber } = req.body;
     if (!name || !serialNumber) {

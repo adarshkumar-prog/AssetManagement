@@ -24,7 +24,8 @@ const assetAssignmentSchema = new mongoose.Schema({
         enum: ['Assigned', 'Unassigned'],
         default: 'Assigned'
     }
-}, {
+},
+{
     timestamps: true
 });
 

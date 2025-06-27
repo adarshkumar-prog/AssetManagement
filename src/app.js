@@ -26,7 +26,6 @@ app.use("/", assetReportingRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-
 connectDB()
 .then(() => {
 console.log("Database connected");

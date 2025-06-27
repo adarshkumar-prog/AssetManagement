@@ -48,7 +48,8 @@ const UserSchema = new mongoose.Schema({
     enum: ['HR', 'Finance', 'Engineering', 'Sales', 'Marketing', 'Other'],
     default: 'Other'
   },
-}, { timestamps : true });
+}, 
+{ timestamps : true });
 
 UserSchema.methods.getJWT =  async function() {
   const user = this;

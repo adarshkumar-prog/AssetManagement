@@ -1,9 +1,7 @@
 const express = require('express');
 const assetReportingRouter = express.Router();
-const Asset = require('../models/asset');
-const User = require('../models/user');
 const { userAuth } = require('../middleware/auth');
-const AssetAssignment = require('../models/assetAssignementModel');
+const { getCountOfAssetByStatus, getCountOfAssetByType, assignmentSummary } = require('../middleware/assetReporting');
 
 
 // Get count of assets by status(admin only)
@@ -24,45 +22,7 @@ const AssetAssignment = require('../models/assetAssignementModel');
  *     security:
  *       - bearerAuth: []
  */
-assetReportingRouter.get('/api/reports/assets-by-status', userAuth, async (req, res) => {
-
-    try {
-        const userWantsToViewId = req.user._id;
-        const userWantsToView = await User.findById(userWantsToViewId);
-        // Check if user is admin
-        if (userWantsToView.role !== "admin") {
-            return res.status(403).json({ message: 'Only admin can view asset counts by status' });
-        }
-        const assetCounts = await Asset.aggregate([
-        {
-            $group: {
-            _id: '$status',
-            count: { $sum: 1 }
-            }
-        },
-        {
-            $project: {
-            _id: 0,
-            status: '$_id',
-            count: 1
-            }
-        }
-        ]);
-        assetCounts.sort((a, b) => b.count - a.count);
-
-        res.status(200).json({
-        success: true,
-        data: assetCounts
-        });
-    } catch (error) {
-        console.error('Error fetching asset counts:', error);
-        res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: error.message
-        });
-    }
-})
+assetReportingRouter.get('/api/reports/assets-by-status', userAuth, getCountOfAssetByStatus);
 
 //Get count of assets by type(admin only)
 /**
@@ -82,46 +42,7 @@ assetReportingRouter.get('/api/reports/assets-by-status', userAuth, async (req, 
  *     security:
  *       - bearerAuth: []
  */
-assetReportingRouter.get('/api/reports/assets-by-type', userAuth, async (req, res) => {
-    try {
-        const userWantsToViewId = req.user._id;
-        const userWantsToView = await User.findById(userWantsToViewId);
-        // Check if user is admin
-        if (userWantsToView.role !== "admin") {
-            return res.status(403).json({ message: 'Only admin can view asset counts by type' });
-        }
-        const assetCounts = await Asset.aggregate([
-        {
-            $group: {
-            _id: '$name',
-            // Assuming 'name' is the field that represents the type of asset
-            count: { $sum: 1 }
-            }
-        },
-        {
-            $project: {
-            _id: 0,
-            type: '$_id',
-            count: 1
-            }
-        }
-        ]);
-        //sort by count in descending order
-        assetCounts.sort((a, b) => b.count - a.count);
-    
-        res.status(200).json({
-        success: true,
-        data: assetCounts
-        });
-    } catch (error) {
-        console.error('Error fetching asset counts by type:', error);
-        res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: error.message
-        });
-    }
-});
+assetReportingRouter.get('/api/reports/assets-by-type', userAuth, getCountOfAssetByType);
 
 //Get assignment summary for all users(admin only)
 /**
@@ -141,45 +62,6 @@ assetReportingRouter.get('/api/reports/assets-by-type', userAuth, async (req, re
  *     security:
  *       - bearerAuth: []
  */
-assetReportingRouter.get('/api/reports/assignment-summary', userAuth, async (req, res) => {
-    try {
-        const userWantsToViewId = req.user._id;
-        const userWantsToView = await User.findById(userWantsToViewId);
-        // Check if user is admin
-        if (userWantsToView.role !== "admin") {
-            return res.status(403).json({ message: 'Only admin can view assignment summary' });
-        }
-        const assignmentSummary = await AssetAssignment.aggregate([
-            {
-                $group: {
-                    _id: {
-                        user: '$assignedTo',
-                        unassignedAt: '$unassignedAt'
-                    },
-                    assignedAssets: { $sum: 1 }
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    user: '$_id.user',
-                    assignedAssets: 1,
-                    unassignedAt: '$_id.unassignedAt'
-                }
-            }
-        ]);
-        res.status(200).json({
-            success: true,
-            data: assignmentSummary
-        });
-    } catch (error) {
-        console.error('Error fetching assignment summary:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error',
-            error: error.message
-        });
-    }
-});
+assetReportingRouter.get('/api/reports/assignment-summary', userAuth, assignmentSummary);
 
 module.exports = assetReportingRouter;
