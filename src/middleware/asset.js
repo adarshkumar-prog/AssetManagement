@@ -14,6 +14,7 @@ createAsset = async (req, res) => {
     if (isAlreadyExists) {
       return res.status(400).json({
         success: false,
+        error: true,
         message: 'Asset with this serial number already exists'
       });
     }
@@ -31,14 +32,15 @@ createAsset = async (req, res) => {
 
     res.status(201).json({
       success: true,
+      error: false,
       message: 'Asset created successfully',
       data: savedAsset
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error',
-      error: error.message
+      error: true + " , " + error.message,
+      message: 'Server Error'
     });
   }
 }
@@ -74,14 +76,16 @@ getAssetsWithFilterOptions = async (req, res) => {
 
     res.status(200).json({
       success: true,
+      error: false,
+      message: 'Assets fetched successfully',
       count: assets.length,
       data: assets
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error',
-      error: error.message
+      error: true + " , " + error.message,
+      message: 'Server Error'
     });
   }
 }
@@ -103,6 +107,7 @@ getAssetById = async (req, res) => {
     if (!asset) {
       return res.status(404).json({
         success: false,
+        error: true,
         message: 'Asset not found'
       });
     }
@@ -112,6 +117,8 @@ getAssetById = async (req, res) => {
         .populate('assignedTo', 'firstName lastName email');
       return res.status(200).json({
         success: true,
+        error: false,
+        message: 'Asset fetched successfully',
         data: {
           ...asset.toObject(),
           assignedTo: assignment ? assignment.assignedTo : null
@@ -121,14 +128,16 @@ getAssetById = async (req, res) => {
 
     res.status(200).json({
       success: true,
+      error: false,
+      message: 'Asset fetched successfully',
       data: asset
     });
   }
   catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error',
-      error: error.message
+      error: true + " , " + error.message,
+      message: 'Server Error'
     });
   }
 }
@@ -161,14 +170,15 @@ updateAsset = async (req, res) => {
         await asset.save();
         res.status(200).json({
             success: true,
+            error: false,
             message: 'Asset updated successfully',
             data: asset
         });
     }catch(err) {
         res.status(500).json({
             success: false,
-            message: 'Server Error',
-            error: err.message
+            error: true + " , " + err.message,
+            message: 'Server Error'
         });
     }
 }
@@ -190,13 +200,14 @@ deleteAsset = async (req, res) => {
         await AssetAssignment.deleteMany({ assetId: assetId });
         res.status(200).json({
             success: true,
+            error: false,
             message: 'Asset deleted successfully'
         });
     }catch(err){
         res.status(500).json({
             success: false,
-            message: 'Server Error',
-            error: err.message
+            error: true + " , " + err.message,
+            message: 'Server Error'
         });
     }
 }

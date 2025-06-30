@@ -2,7 +2,7 @@ const express = require('express');
 const User = require("../models/user");
 const { userAuth } = require("../middleware/auth");
 const profileRouter = express.Router();
-const { updateUser, getUserById, getAllUsers, deleteUser } = require("../middleware/profile");
+const { updateUser, getUserById, getAllUsers, deleteUser, changePassword } = require("../middleware/profile");
 
 
 //Update user information
@@ -68,6 +68,8 @@ profileRouter.get("/api/users/:id", userAuth, getUserById)
  */
 profileRouter.get("/api/users", userAuth, getAllUsers)
 
+// Change password
+profileRouter.post("/api/users/change-password", userAuth, changePassword);
 
 // Delete user (admin only)
 /**

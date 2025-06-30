@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const { validateUpdateProfileData } = require("../utils/validation");
+const bcrypt = require('bcrypt');
 
 updateUser = async (req, res) => {
     try{
@@ -15,10 +16,10 @@ updateUser = async (req, res) => {
         Object.keys(req.body).forEach((key) => loggedInUser[key] = req.body[key]);
         await loggedInUser.save();
 
-        res.status(200).json({ message: `${loggedInUser.firstName} ${loggedInUser.lastName} your profile updated successfully` });
+        res.status(200).json({ success: true, error: false, message: `${loggedInUser.firstName} ${loggedInUser.lastName} your profile updated successfully` });
 
     }catch(e){
-        res.status(400).json({ message: "Something went wrong", error: e.message });
+        res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
     }
 }
 
@@ -34,11 +35,13 @@ getUserById = async (req, res) => {
         }
         user.password = undefined;
         res.status(200).json({
+            "success": true,
+            "error": false,
             "message":"User fetched successfully",
             "user": user
         });
     }catch(e){
-        res.status(400).json({ message: "Something went wrong", error: e.message });
+        res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
     }
 }
 
@@ -50,11 +53,31 @@ getAllUsers = async (req, res) => {
         }
         const users = await User.find({});
         users.forEach(user => {
-            user.password = undefined; // Hide password from response
+            user.password = undefined;
         });
-        res.status(200).json(users);
+        res.status(200).json({ success: true, error: false, count: users.length, message: "Users fetched successfully", users});
     }catch(e){
-        res.status(400).json({ message: "Something went wrong", error: e.message });
+        res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
+    }
+}
+
+changePassword = async (req, res) => {
+    try {
+        const currentPassword = req.body.currentPassword;
+        const newPassword = req.body.newPassword;
+        const confirmPassword = req.body.confirmPassword;
+        const isCurrentPasswordValid = await req.user.ValidatePassword(currentPassword);
+        if(!isCurrentPasswordValid){
+           throw new Error("Invalid current password");
+        }
+        if(newPassword !== confirmPassword){
+          throw new Error("Passwords do not match");
+        }
+        req.user.password = await bcrypt.hash(newPassword, 10);;
+    await req.user.save();
+    res.status(200).json({ success: true, error: false, message: "Password changed successfully" });
+    } catch (e) {
+        res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" }); 
     }
 }
 
@@ -70,10 +93,13 @@ deleteUser = async (req, res) => {
             throw new Error("User not found!!");
         }
         res.status(200).json({
-            "message":"User deleted successfully"
+            "success": true,
+            "error": false,
+            "message":"User deleted successfully",
+            "user": user
         });
     }catch(e){
-        res.status(400).json({ message: "Something went wrong", error: e.message });
+        res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
     }
 }
 
@@ -81,5 +107,6 @@ module.exports = {
     updateUser,
     getUserById,
     getAllUsers,
-    deleteUser
+    deleteUser,
+    changePassword
 };

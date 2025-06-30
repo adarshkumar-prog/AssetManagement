@@ -7,9 +7,8 @@ getCountOfAssetByStatus = async (req, res) => {
     try {
         const userWantsToViewId = req.user._id;
         const userWantsToView = await User.findById(userWantsToViewId);
-        // Check if user is admin
         if (userWantsToView.role !== "admin") {
-            return res.status(403).json({ message: 'Only admin can view asset counts by status' });
+            return res.status(403).json({ success: false, error: true, message: 'Only admin can view asset counts by status' });
         }
         const assetCounts = await Asset.aggregate([
         {
@@ -30,14 +29,15 @@ getCountOfAssetByStatus = async (req, res) => {
 
         res.status(200).json({
         success: true,
+        error: false,
         data: assetCounts
         });
     } catch (error) {
         console.error('Error fetching asset counts:', error);
         res.status(500).json({
         success: false,
-        message: 'Internal server error',
-        error: error.message
+        error: true,
+        message: 'Internal server error'
         });
     }
 }
@@ -48,7 +48,7 @@ getCountOfAssetByType = async (req, res) => {
         const userWantsToView = await User.findById(userWantsToViewId);
         // Check if user is admin
         if (userWantsToView.role !== "admin") {
-            return res.status(403).json({ message: 'Only admin can view asset counts by type' });
+            return res.status(403).json({ success: false, error: true, message: 'Only admin can view asset counts by type' });
         }
         const assetCounts = await Asset.aggregate([
         {
@@ -71,14 +71,15 @@ getCountOfAssetByType = async (req, res) => {
     
         res.status(200).json({
         success: true,
+        error: false,
         data: assetCounts
         });
     } catch (error) {
         console.error('Error fetching asset counts by type:', error);
         res.status(500).json({
         success: false,
-        message: 'Internal server error',
-        error: error.message
+        error: true,
+        message: 'Internal server error'
         });
     }
 }
@@ -89,7 +90,7 @@ assignmentSummary = async (req, res) => {
         const userWantsToView = await User.findById(userWantsToViewId);
         // Check if user is admin
         if (userWantsToView.role !== "admin") {
-            return res.status(403).json({ message: 'Only admin can view assignment summary' });
+            return res.status(403).json({ success: false, error: true, message: 'Only admin can view assignment summary' });
         }
         const assignmentSummary = await AssetAssignment.aggregate([
             {
@@ -112,14 +113,15 @@ assignmentSummary = async (req, res) => {
         ]);
         res.status(200).json({
             success: true,
+            error: false,
             data: assignmentSummary
         });
     } catch (error) {
         console.error('Error fetching assignment summary:', error);
         res.status(500).json({
             success: false,
-            message: 'Internal server error',
-            error: error.message
+            error: true,
+            message: 'Internal server error'
         });
     }
 };

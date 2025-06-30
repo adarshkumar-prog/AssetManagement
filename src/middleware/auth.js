@@ -7,7 +7,7 @@ const userAuth = async (req, res, next) => {
     try{
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new Error({ message: "Unauthorized: No token provided" });
+            throw new Error({ success: false, error: true, message: "Unauthorized: No token provided" });
         }
         const token = authHeader.split(' ')[1];
     if(!token) {
@@ -24,7 +24,7 @@ const userAuth = async (req, res, next) => {
 
     next();
     }catch(e){
-        res.status(400).json({ message: "ERROR", error: e.message });
+        res.status(400).json({ success: false, error: true + " , " + e.message, message: "ERROR" });
     }
 }
 
@@ -37,20 +37,19 @@ register = async (req, res) => {
         const { firstName, lastName, email, password, department, role } = req.body;
         const passwordHash = await bcrypt.hash(password, 10);
 
-        // Creating a new instance of User model
-        // and saving it to the database
         const user = new User({firstName, lastName, email, role, department, password: passwordHash, assignedAssets: [], previouslyAssignedAssets: []});
        
         await user.save();
         res.status(201).json({
+            success: true,
+            error: false,
             "message":"User registered successfully"
         });
     }catch(e){
         if (e.code === 11000) {
-            // Duplicate key error
-            res.status(400).json({ message: "Email already exists" });
+            res.status(400).json({ success: false, error: true, message: "Email already exists" });
         } else {
-            res.status(400).json({ message: e.message });
+            res.status(400).json({ success: false, error: true, message: e.message });
         }
     }
 }
@@ -73,6 +72,8 @@ login = async (req, res) => {
             user.password = undefined;
             const token = await user.getJWT();
             res.status(200).json({ 
+    success: true,
+    error: false,
     message: "Login Successful", 
     token,
     user 
@@ -80,9 +81,10 @@ login = async (req, res) => {
 
         }
     }catch(err) {
-        res.status(400).json({ message: "Something went wrong", error: err.message });
+        res.status(400).json({ success: false, error: true + " , " + err.message, message: "Something went wrong" });
     }
 }
+
 
 module.exports = {
     userAuth,
