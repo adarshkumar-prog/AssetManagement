@@ -1,4 +1,4 @@
-const { validateAssetData } = require('../utils/validation');
+const { validateAssetData } = require('../middleware/validation');
 const User = require('../models/user');
 const Asset = require('../models/asset');
 const AssetAssignment = require('../models/assetAssignementModel');

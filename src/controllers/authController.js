@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const { validateSignUpData } = require("../utils/validation");
+const { validateSignUpData } = require("../middleware/validation");
 const { sendEmail } = require("../utils/sendEmail");
 const bcrypt = require('bcrypt');
 const { userToDTO } = require("../dto/user.dto");
