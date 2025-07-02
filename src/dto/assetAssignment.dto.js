@@ -1,8 +1,11 @@
 exports.assetAssignmentToDTO = (assignment) => ({
-    id: assignment._id,
-    asset: assignment.asset,
-    user: assignment.user,
+   asset: assignment.assetId,
     assignedAt: assignment.assignedAt,
-    returnedAt: assignment.returnedAt,
-    status: assignment.status
+    status: assignment.status,
+    unassignedAt: assignment.unassignedAt,
+    assignedTo: {
+        firstName: assignment.assignedTo.firstName,
+        lastName: assignment.assignedTo.lastName,
+        email: assignment.assignedTo.email
+    }
 });

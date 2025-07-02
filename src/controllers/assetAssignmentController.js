@@ -103,7 +103,7 @@ exports.getAllAssetAssignToSpecificUser = async(req, res) => {
                 email: assignment.assignedTo.email
             }
         }));
-        res.status(200).json({ success: true, error: false, assignedAssets:assetAssignmentToDTO(assignedAssets) });
+        res.status(200).json({ success: true, error: false, assignedAssets:assignedAssets.map(assignedAssets => assetAssignmentToDTO(assignedAssets)) });
     }catch(error) {
         console.error('Error fetching assigned assets:', error);
         res.status(500).json({ success: false, error: true, message: 'Internal server error' });
