@@ -2,7 +2,7 @@ const Asset = require('../models/asset');
 const User = require('../models/user');
 const AssetAssignment = require('../models/assetAssignementModel');
 
-getCountOfAssetByStatus = async (req, res) => {
+exports.getCountOfAssetByStatus = async (req, res) => {
 
     try {
         const userWantsToViewId = req.user._id;
@@ -42,7 +42,7 @@ getCountOfAssetByStatus = async (req, res) => {
     }
 }
 
-getCountOfAssetByType = async (req, res) => {
+exports.getCountOfAssetByType = async (req, res) => {
     try {
         const userWantsToViewId = req.user._id;
         const userWantsToView = await User.findById(userWantsToViewId);
@@ -84,7 +84,7 @@ getCountOfAssetByType = async (req, res) => {
     }
 }
 
-assignmentSummary = async (req, res) => {
+exports.assignmentSummary = async (req, res) => {
     try {
         const userWantsToViewId = req.user._id;
         const userWantsToView = await User.findById(userWantsToViewId);
@@ -124,10 +124,4 @@ assignmentSummary = async (req, res) => {
             message: 'Internal server error'
         });
     }
-};
-
-module.exports = {
-    getCountOfAssetByStatus,
-    getCountOfAssetByType,
-    assignmentSummary
 };

@@ -1,7 +1,7 @@
 const express = require('express');
 const assetReportingRouter = express.Router();
 const { userAuth } = require('../middleware/auth');
-const { getCountOfAssetByStatus, getCountOfAssetByType, assignmentSummary } = require('../middleware/assetReporting');
+const assetReportingController = require('../controllers/assetReportingController');
 
 
 // Get count of assets by status(admin only)
@@ -22,7 +22,7 @@ const { getCountOfAssetByStatus, getCountOfAssetByType, assignmentSummary } = re
  *     security:
  *       - bearerAuth: []
  */
-assetReportingRouter.get('/api/reports/assets-by-status', userAuth, getCountOfAssetByStatus);
+assetReportingRouter.get('/api/reports/assets-by-status', userAuth, assetReportingController.getCountOfAssetByStatus);
 
 //Get count of assets by type(admin only)
 /**
@@ -42,7 +42,7 @@ assetReportingRouter.get('/api/reports/assets-by-status', userAuth, getCountOfAs
  *     security:
  *       - bearerAuth: []
  */
-assetReportingRouter.get('/api/reports/assets-by-type', userAuth, getCountOfAssetByType);
+assetReportingRouter.get('/api/reports/assets-by-type', userAuth, assetReportingController.getCountOfAssetByType);
 
 //Get assignment summary for all users(admin only)
 /**
@@ -62,6 +62,6 @@ assetReportingRouter.get('/api/reports/assets-by-type', userAuth, getCountOfAsse
  *     security:
  *       - bearerAuth: []
  */
-assetReportingRouter.get('/api/reports/assignment-summary', userAuth, assignmentSummary);
+assetReportingRouter.get('/api/reports/assignment-summary', userAuth, assetReportingController.assignmentSummary);
 
 module.exports = assetReportingRouter;

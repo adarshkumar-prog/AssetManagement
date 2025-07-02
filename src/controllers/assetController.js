@@ -2,7 +2,10 @@ const { validateAssetData } = require('../utils/validation');
 const User = require('../models/user');
 const Asset = require('../models/asset');
 const AssetAssignment = require('../models/assetAssignementModel');
-createAsset = async (req, res) => {
+const { assetToDTO } = require('../dto/asset.dto');
+const { assetAssignmentToDTO } = require('../dto/assetAssignment.dto');
+
+exports.createAsset = async (req, res) => {
   try {
     const { name, serialNumber, status } = req.body;
     const userWantsToCreateId = req.user.id;
@@ -34,7 +37,7 @@ createAsset = async (req, res) => {
       success: true,
       error: false,
       message: 'Asset created successfully',
-      data: savedAsset
+      savedAsset: assetToDTO(savedAsset)
     });
   } catch (error) {
     res.status(500).json({
@@ -45,7 +48,7 @@ createAsset = async (req, res) => {
   }
 }
 
-getAssetsWithFilterOptions = async (req, res) => {
+exports.getAssetsWithFilterOptions = async (req, res) => {
   try {
     const { name, status, assignedTo } = req.query;
     const userWantsToViewId = req.user._id;
@@ -79,7 +82,7 @@ getAssetsWithFilterOptions = async (req, res) => {
       error: false,
       message: 'Assets fetched successfully',
       count: assets.length,
-      data: assets
+      assets: assets.map((asset) => assetToDTO(asset))
     });
   } catch (error) {
     res.status(500).json({
@@ -90,7 +93,7 @@ getAssetsWithFilterOptions = async (req, res) => {
   }
 }
 
-getAssetById = async (req, res) => {
+exports.getAssetById = async (req, res) => {
   try {
     const assetId = req.params.id;
 
@@ -120,6 +123,8 @@ getAssetById = async (req, res) => {
         error: false,
         message: 'Asset fetched successfully',
         data: {
+          ...assetAssignmentToDTO(assignment),
+          ...assetToDTO(asset),
           ...asset.toObject(),
           assignedTo: assignment ? assignment.assignedTo : null
         }
@@ -142,7 +147,7 @@ getAssetById = async (req, res) => {
   }
 }
 
-updateAsset = async (req, res) => {
+exports.updateAsset = async (req, res) => {
     try{
         const assetId = req.params.id;
         const userWantsToUpdateId = req.user._id;
@@ -172,7 +177,7 @@ updateAsset = async (req, res) => {
             success: true,
             error: false,
             message: 'Asset updated successfully',
-            data: asset
+            asset: assetToDTO(asset)
         });
     }catch(err) {
         res.status(500).json({
@@ -183,7 +188,7 @@ updateAsset = async (req, res) => {
     }
 }
 
-deleteAsset = async (req, res) => {
+exports.deleteAsset = async (req, res) => {
     try{
         const assetId = req.params.id;
 
@@ -211,11 +216,3 @@ deleteAsset = async (req, res) => {
         });
     }
 }
-
-module.exports = {
-  createAsset,
-  getAssetsWithFilterOptions,
-  getAssetById,
-  updateAsset,
-  deleteAsset
-};

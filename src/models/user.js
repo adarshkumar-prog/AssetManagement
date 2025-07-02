@@ -48,6 +48,14 @@ const UserSchema = new mongoose.Schema({
     enum: ['HR', 'Finance', 'Engineering', 'Sales', 'Marketing', 'Other'],
     default: 'Other'
   },
+  verificationCode: {
+  type: String,
+  default: null
+},
+verificationCodeExpires: {
+  type: Date,
+  default: null
+},
 }, 
 { timestamps : true });
 

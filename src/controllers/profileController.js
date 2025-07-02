@@ -1,8 +1,10 @@
 const User = require("../models/user");
 const { validateUpdateProfileData } = require("../utils/validation");
 const bcrypt = require('bcrypt');
+const { sendEmailCode } = require("../utils/sendEmail");
+const { userToDTO } = require("../dto/user.dto");
 
-updateUser = async (req, res) => {
+exports.updateUser = async (req, res) => {
     try{
         if(!validateUpdateProfileData(req)){
             throw new Error("Invalid update fields");
@@ -23,7 +25,7 @@ updateUser = async (req, res) => {
     }
 }
 
-getUserById = async (req, res) => {
+exports.getUserById = async (req, res) => {
     try{
         const userWantsToView = req.user;
         if(userWantsToView.role !== "admin"){
@@ -38,14 +40,14 @@ getUserById = async (req, res) => {
             "success": true,
             "error": false,
             "message":"User fetched successfully",
-            "user": user
+            "user": userToDTO(user)
         });
     }catch(e){
         res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
     }
 }
 
-getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res) => {
     try{
         const userWantsToView = req.user;
         if(userWantsToView.role !== "admin"){
@@ -55,13 +57,13 @@ getAllUsers = async (req, res) => {
         users.forEach(user => {
             user.password = undefined;
         });
-        res.status(200).json({ success: true, error: false, count: users.length, message: "Users fetched successfully", users});
+        res.status(200).json({ success: true, error: false, count: users.length, message: "Users fetched successfully", users: users.map(user => userToDTO(user)) });
     }catch(e){
         res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
     }
 }
 
-changePassword = async (req, res) => {
+exports.changePassword = async (req, res) => {
     try {
         const currentPassword = req.body.currentPassword;
         const newPassword = req.body.newPassword;
@@ -81,7 +83,62 @@ changePassword = async (req, res) => {
     }
 }
 
-deleteUser = async (req, res) => {
+exports.validateCodeAndResetPassword = async (req, res) => {
+    try {
+        const { email, verificationCode, newPassword, confirmPassword } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+        if (
+            !user.verificationCode ||
+            user.verificationCode !== verificationCode ||
+            !user.verificationCodeExpires ||
+            user.verificationCodeExpires < Date.now()
+        ) {
+            throw new Error("Invalid or expired verification code");
+        }
+        if (newPassword !== confirmPassword) {
+            throw new Error("Passwords do not match");
+        }
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        user.verificationCode = null;
+        user.verificationCodeExpires = null;
+        await user.save();
+
+        res.status(200).json({ success: true, error: false, message: "Password changed successfully" });
+    } catch (e) {
+        res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
+    }
+}
+
+exports.sendVerificationCode = async ( req, res ) => {
+    try{
+        const userEmail = req.body.email;
+        const user = await User.findOne({email: userEmail});
+        if(!user){
+            throw new Error("User not found");
+        }
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        user.verificationCode = verificationCode;
+        user.verificationCodeExpires = Date.now() + 10 * 60 * 1000; // 10 minutes expiry
+        await user.save();
+
+        await sendEmailCode({
+            to: user.email,
+            subject: "Verification Code",
+            text: `Your verification code is ${verificationCode}`
+        });
+        res.status(200).json({ success: true, error: false, message: "Verification code sent successfully" });
+    }
+    catch(e){
+        res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
+    }
+}
+
+exports.deleteUser = async (req, res) => {
     const userId = req.params.id;
     const userWantsToDelete = req.user;
     try{
@@ -96,17 +153,9 @@ deleteUser = async (req, res) => {
             "success": true,
             "error": false,
             "message":"User deleted successfully",
-            "user": user
+            "user": userToDTO(user)
         });
     }catch(e){
         res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
     }
 }
-
-module.exports = {
-    updateUser,
-    getUserById,
-    getAllUsers,
-    deleteUser,
-    changePassword
-};

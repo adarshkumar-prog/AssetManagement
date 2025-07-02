@@ -1,6 +1,6 @@
 const express = require('express');
 const authRouter = express.Router();
-const { register, login } = require("../middleware/auth");
+const authController = require("../controllers/authController");
 
 ///Register a new user
 /**
@@ -20,7 +20,7 @@ const { register, login } = require("../middleware/auth");
  *       201:
  *         description: User registered successfully
  */
-authRouter.post("/api/auth/register", register);
+authRouter.post("/api/auth/register", authController.register);
 
 // User login (returns JWT token)
 /**
@@ -45,6 +45,6 @@ authRouter.post("/api/auth/register", register);
  *         description: Successful login
  */
 
-authRouter.post("/api/auth/login", login); 
+authRouter.post("/api/auth/login", authController.login); 
 
 module.exports = authRouter;

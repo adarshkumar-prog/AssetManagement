@@ -1,8 +1,10 @@
 const Asset = require('../models/asset');
 const User = require('../models/user');
 const AssetAssignment = require('../models/assetAssignementModel');
+const { assetToDTO } = require('../dto/asset.dto');
+const { assetAssignmentToDTO }  = require('../dto/assetAssignment.dto');
 
-assignAsset = async(req, res) => {
+exports.assignAsset = async(req, res) => {
   const assetId = req.params.id;
   const userId = req.body.userId;
 
@@ -33,14 +35,14 @@ assignAsset = async(req, res) => {
     });
     await assetAssignment.save();
 
-    res.status(200).json({ success: true, error: false, message: 'Asset assigned successfully', asset });
+    res.status(200).json({ success: true, error: false, message: 'Asset assigned successfully', asset:assetToDTO(asset) });
   } catch (error) {
     console.error('Error assigning asset:', error);
     res.status(500).json({ success: false, error: true, message: 'Internal server error' });
   }
 }
 
-assetUnassign = async(req, res) => {
+exports.assetUnassign = async(req, res) => {
   const assetId = req.params.id;
 
   try {
@@ -65,14 +67,14 @@ assetUnassign = async(req, res) => {
     }
     await asset.save();
 
-    res.status(200).json({ success: true, error: false, message: 'Asset unassigned successfully', asset });
+    res.status(200).json({ success: true, error: false, message: 'Asset unassigned successfully', asset:assetToDTO(asset) });
   } catch (error) {
     console.error('Error unassigning asset:' + error);
     res.status(500).json({ success: false, error: true, message: 'Internal server error' });
   }
 }
 
-getAllAssetAssignToSpecificUser = async(req, res) => {
+exports.getAllAssetAssignToSpecificUser = async(req, res) => {
     const userId = req.params.userId;
     try{
         const userWantsToViewId = req.user._id;
@@ -101,14 +103,14 @@ getAllAssetAssignToSpecificUser = async(req, res) => {
                 email: assignment.assignedTo.email
             }
         }));
-        res.status(200).json({ success: true, error: false, assignedAssets });
+        res.status(200).json({ success: true, error: false, assignedAssets:assetAssignmentToDTO(assignedAssets) });
     }catch(error) {
         console.error('Error fetching assigned assets:', error);
         res.status(500).json({ success: false, error: true, message: 'Internal server error' });
     }
 }
 
-getAllAvailableAsset = async(req, res) => {
+exports.getAllAvailableAsset = async(req, res) => {
     try {
         const availableAssets = await Asset.find({ status: 'Available' });
         if (availableAssets.length === 0) {
@@ -116,14 +118,14 @@ getAllAvailableAsset = async(req, res) => {
         }
         
          // Return the list of available assets
-        res.status(200).json({ success: true, error: false, count: availableAssets.length, message: 'Available assets fetched successfully', availableAssets });
+        res.status(200).json({ success: true, error: false, count: availableAssets.length, message: 'Available assets fetched successfully', availableAssets:assetToDTO(availableAssets) });
     } catch (error) {
         console.error('Error fetching available assets:', error);
         res.status(500).json({ success: false, error: true, message: 'Internal server error' });
     }
 }
 
-getAllPreviouslyAssignedAsset = async(req, res) => {
+exports.getAllPreviouslyAssignedAsset = async(req, res) => {
     const userId = req.params.userId;
     try{
         const userWantsToViewId = req.user._id;
@@ -151,14 +153,14 @@ getAllPreviouslyAssignedAsset = async(req, res) => {
                 email: assignment.assignedTo.email
             }
         }));
-        res.status(200).json({ success: true, error: false, previouslyAssignedAssets });
+        res.status(200).json({ success: true, error: false, previouslyAssignedAssets:assetAssignmentToDTO(previouslyAssignedAssets) });
     }catch(error) {
         console.error('Error fetching previously assigned assets:', error);
         res.status(500).json({ success: false, error: true, message: 'Internal server error' });
     }
 }
 
-userWantsToReturn = async(req, res) => {
+exports.userWantsToReturn = async(req, res) => {
   const assetId = req.params.id;
   const userId = req.user._id;
   try{
@@ -180,14 +182,14 @@ userWantsToReturn = async(req, res) => {
     await asset.save();
     await assetAssignment.save();
 
-    res.status(200).json({ success: true, error: false, message: 'Asset returned successfully', asset });
+    res.status(200).json({ success: true, error: false, message: 'Asset returned successfully', asset:assetToDTO(asset) });
   }catch(error) {
     console.error('Error returning asset:', error);
     res.status(500).json({ success: false, error: true, message: 'Internal server error' });
   }
 }
 
-getAllAssetAssignedBetweenDates = async(req, res) => {
+exports.getAllAssetAssignedBetweenDates = async(req, res) => {
   const { startDate, endDate } = req.query;
 
   try {
@@ -217,20 +219,10 @@ getAllAssetAssignedBetweenDates = async(req, res) => {
     res.status(200).json({
       success: true,
       error: false,
-      assignedAssets
+      assignedAssets:assetAssignmentToDTO(assignedAssets)
     })
   } catch (error) {
     console.error('Error fetching assets assigned between dates:', error);
     res.status(500).json({ success: false, error: true, message: 'Internal server error' });
   }
-}
-
-module.exports = {
-  assignAsset,
-  assetUnassign,
-  getAllAssetAssignToSpecificUser,
-  userWantsToReturn,
-  getAllPreviouslyAssignedAsset,
-  getAllAvailableAsset,
-  getAllAssetAssignedBetweenDates
 }

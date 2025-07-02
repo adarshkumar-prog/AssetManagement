@@ -1,8 +1,7 @@
 const express = require('express');
-const User = require("../models/user");
 const { userAuth } = require("../middleware/auth");
 const profileRouter = express.Router();
-const { updateUser, getUserById, getAllUsers, deleteUser, changePassword } = require("../middleware/profile");
+const profileController = require("../controllers/profileController");
 
 
 //Update user information
@@ -30,7 +29,7 @@ const { updateUser, getUserById, getAllUsers, deleteUser, changePassword } = req
  *       200:
  *         description: User profile updated successfully
  */
-profileRouter.put("/api/users/:id",userAuth, updateUser);
+profileRouter.put("/api/users/:id",userAuth, profileController.updateUser);
 
 
 // Get user by ID(admin only)
@@ -52,7 +51,7 @@ profileRouter.put("/api/users/:id",userAuth, updateUser);
  *       200:
  *         description: User fetched successfully
  */
-profileRouter.get("/api/users/:id", userAuth, getUserById)
+profileRouter.get("/api/users/:id", userAuth, profileController.getUserById)
 
 // Get all users (admin only)
 /**
@@ -66,10 +65,17 @@ profileRouter.get("/api/users/:id", userAuth, getUserById)
  *       200:
  *         description: Users fetched successfully
  */
-profileRouter.get("/api/users", userAuth, getAllUsers)
+profileRouter.get("/api/users", userAuth, profileController.getAllUsers)
 
 // Change password
-profileRouter.post("/api/users/change-password", userAuth, changePassword);
+profileRouter.post("/api/users/change-password", userAuth, profileController.changePassword);
+
+//Forgot Password
+profileRouter.post("/api/users/forgot-password", profileController.sendVerificationCode);
+
+//Validate Code and Reset Password
+profileRouter.post("/api/users/forgot-password/reset-password", profileController.validateCodeAndResetPassword);
+
 
 // Delete user (admin only)
 /**
@@ -90,6 +96,6 @@ profileRouter.post("/api/users/change-password", userAuth, changePassword);
  *       200:
  *         description: User deleted successfully
  */
-profileRouter.delete("/api/users/:id",userAuth, deleteUser);
+profileRouter.delete("/api/users/:id",userAuth, profileController.deleteUser);
 
 module.exports = profileRouter;
