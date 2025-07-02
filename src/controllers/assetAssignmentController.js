@@ -118,7 +118,7 @@ exports.getAllAvailableAsset = async(req, res) => {
         }
         
          // Return the list of available assets
-        res.status(200).json({ success: true, error: false, count: availableAssets.length, message: 'Available assets fetched successfully', availableAssets:assetToDTO(availableAssets) });
+        res.status(200).json({ success: true, error: false, count: availableAssets.length, message: 'Available assets fetched successfully', availableAssets:availableAssets.map(availableAssets => assetToDTO(availableAssets)) });
     } catch (error) {
         console.error('Error fetching available assets:', error);
         res.status(500).json({ success: false, error: true, message: 'Internal server error' });
@@ -153,7 +153,7 @@ exports.getAllPreviouslyAssignedAsset = async(req, res) => {
                 email: assignment.assignedTo.email
             }
         }));
-        res.status(200).json({ success: true, error: false, previouslyAssignedAssets:assetAssignmentToDTO(previouslyAssignedAssets) });
+        res.status(200).json({ success: true, error: false, previouslyAssignedAssets:previouslyAssignedAssets.map(previouslyAssignedAssets => assetAssignmentToDTO(previouslyAssignedAssets)) });
     }catch(error) {
         console.error('Error fetching previously assigned assets:', error);
         res.status(500).json({ success: false, error: true, message: 'Internal server error' });
@@ -219,7 +219,7 @@ exports.getAllAssetAssignedBetweenDates = async(req, res) => {
     res.status(200).json({
       success: true,
       error: false,
-      assignedAssets:assetAssignmentToDTO(assignedAssets)
+      assignedAssets:assignedAssets.map(assignedAssets => assetAssignmentToDTO(assignedAssets))
     })
   } catch (error) {
     console.error('Error fetching assets assigned between dates:', error);
