@@ -42,6 +42,7 @@ exports.assignAsset = async(req, res) => {
   }
 }
 
+
 exports.assetUnassign = async(req, res) => {
   const assetId = req.params.id;
 
