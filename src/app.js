@@ -6,7 +6,11 @@ const port = process.env.PORT || 3000;
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger'); 
 const cors = require('cors');
-app.use(cors());
+app.use(cors(
+    {
+        origin: '*'
+    }
+));
 
 
 app.use(express.json());
