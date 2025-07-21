@@ -4,15 +4,20 @@ const User = require("../models/user");
 const userAuth = async (req, res, next) => {
     try{
         const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new Error({ success: false, error: true, message: "Unauthorized: No token provided" });
+        // if (!authHeader || !authHeader.startsWith('Bearer')) {
+        //     throw new Error("Unauthorized: No token provided");
+        // }
+        let token = authHeader?split(' ')[1]:undefined;
+        if ( req.query && req.query.token ) {
+            token = req.query.token;
         }
-        const token = authHeader.split(' ')[1];
-    if(!token) {
-        throw new Error(" Unauthorized ");
-    }
+        console.log("Token: ", token);
+        if(!token) {
+            throw new Error("Unauthorized");
+        }
     const decodedObj = await jwt.verify(token, "ASSET_MANAGEMENT_SECRET" );
     const { _id } = decodedObj;
+
 
     const user = await User.findById(_id);
     if (!user) {
@@ -22,7 +27,7 @@ const userAuth = async (req, res, next) => {
 
     next();
     }catch(e){
-        res.status(400).json({ success: false, error: true + " , " + e.message, message: "ERROR" });
+        res.status(400).json({ success: false, error: true + " , " + e.message});
     }
 }
 
