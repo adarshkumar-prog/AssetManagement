@@ -4,14 +4,10 @@ const User = require("../models/user");
 const userAuth = async (req, res, next) => {
     try{
         const authHeader = req.headers.authorization;
-        // if (!authHeader || !authHeader.startsWith('Bearer')) {
-        //     throw new Error("Unauthorized: No token provided");
-        // }
-        let token = authHeader?split(' ')[1]:undefined;
-        if ( req.query && req.query.token ) {
-            token = req.query.token;
-        }
-        console.log("Token: ", token);
+         if (!authHeader || !authHeader.startsWith('Bearer')) {
+             throw new Error("Unauthorized: No token provided");
+                 }
+        let token = authHeader.split(' ')[1];
         if(!token) {
             throw new Error("Unauthorized");
         }
