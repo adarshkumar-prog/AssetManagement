@@ -8,10 +8,7 @@ const swaggerSpec = require('./config/swagger');
 const cors = require('cors');
 
 app.use(cors({
-  origin: 'http://127.0.0.1:5500',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+     origin: '*',
 }));
 
 
