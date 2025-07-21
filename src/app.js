@@ -6,12 +6,17 @@ const port = process.env.PORT || 3000;
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger'); 
 const cors = require('cors');
-app.use(cors(
-    {
-        origin: '*'
-    }
-));
 
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'CORS is working!' });
+});
 
 app.use(express.json());
 
