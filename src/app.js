@@ -14,9 +14,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'CORS is working!' });
-});
 
 app.use(express.json());
 
