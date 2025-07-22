@@ -3,6 +3,9 @@ const { userAuth } = require("../middleware/auth");
 const profileRouter = express.Router();
 const profileController = require("../controllers/profileController");
 
+//Get my profile
+profileRouter.get("/api/users/getMyProfile", userAuth, profileController.getMyProfile);
+
 
 //Update user information
 /**

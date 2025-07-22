@@ -159,3 +159,21 @@ exports.deleteUser = async (req, res) => {
         res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
     }
 }
+
+exports.getMyProfile = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            throw new Error("User not found");
+        }
+        user.password = undefined; // Exclude password from response
+        res.status(200).json({
+            success: true,
+            error: false,
+            message: "Profile fetched successfully",
+            user: userToDTO(user)
+        });
+    } catch (e) {
+        res.status(400).json({ success: false, error: true + " , " + e.message, message: "Something went wrong" });
+    }
+}
