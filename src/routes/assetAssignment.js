@@ -4,6 +4,9 @@ const { userAuth } = require('../middleware/auth');
 const assetAssignmentController = require('../controllers/assetAssignmentController');  
 
 
+//get all asset assigned currently
+assetAssignmentRouter.get('/api/getAllCurrentlyAssigned', userAuth, assetAssignmentController.getAllCurrentlyAssignedAssets);
+
 // Assign asset to a user(admin only)
 /**
  * @swagger

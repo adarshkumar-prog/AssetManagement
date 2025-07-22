@@ -227,3 +227,36 @@ exports.getAllAssetAssignedBetweenDates = async(req, res) => {
     res.status(500).json({ success: false, error: true, message: 'Internal server error' });
   }
 }
+
+exports.getAllCurrentlyAssignedAssets = async(req, res) => {
+  const user = req.user;
+  try{
+    const userWantsToViewId = user._id;
+    const userWantsToView = await User.findById(userWantsToViewId);
+    if (userWantsToView.role !== "admin") {
+      return res.status(403).json({ success: false, error: true, message: 'Only admin can view currently assigned assets' });
+    }
+    const currentlyAssignedAssets = await AssetAssignment.find({ status: 'Assigned' })
+      .populate('assignedTo', 'firstName lastName email')
+      .populate('assetId', 'name serialNumber status')
+      .exec();
+
+    currentlyAssignedAssets.forEach(assignment => {
+      if (assignment.assignedAt) assignment.assignedAt = assignment.assignedAt.toISOString();
+    });
+
+    if (currentlyAssignedAssets.length === 0) {
+      return res.status(404).json({ success: true, error: false, message: 'No currently assigned assets found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      error: false,
+      currentlyAssignedAssets:currentlyAssignedAssets
+    });
+  }
+  catch(error) {
+    console.error('Error fetching currently assigned assets:', error);
+    res.status(500).json({ success: false, error: true, message: 'Internal server error' });
+  }
+}

@@ -19,6 +19,7 @@ const userAuth = async (req, res, next) => {
     if (!user) {
         throw new Error("Unauthorized: User not found");
     }
+
     req.user = user;
 
     next();
