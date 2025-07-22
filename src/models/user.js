@@ -62,7 +62,7 @@ verificationCodeExpires: {
 UserSchema.methods.getJWT =  async function() {
   const user = this;
   const token = await jwt.sign({_id : user._id }, "ASSET_MANAGEMENT_SECRET" , {
-      expiresIn: "1h"
+      expiresIn: "1d"
   });
   return token;
 }
