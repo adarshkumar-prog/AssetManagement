@@ -134,7 +134,7 @@ exports.getAllPreviouslyAssignedAsset = async(req, res) => {
         }
         const user = await User.findById(userId);
         if(!user){
-            throw new Error({message: 'User not found'});
+            throw new Error('User not found');
         }
         const previouslyAssignedAsset = await AssetAssignment.find({ assignedTo: userId, status: 'Unassigned' })
             .populate('assetId', 'name serialNumber status')
@@ -152,10 +152,10 @@ exports.getAllPreviouslyAssignedAsset = async(req, res) => {
                 email: assignment.assignedTo.email
             }
         }));
-        res.status(200).json({ success: true, error: false, previouslyAssignedAssets:previouslyAssignedAssets.map(previouslyAssignedAssets => assetAssignmentToDTO(previouslyAssignedAssets)) });
+        res.status(200).json({ success: true, error: false, previouslyAssignedAssets });
     }catch(error) {
         console.error('Error fetching previously assigned assets:', error);
-        res.status(500).json({ success: false, error: true, message: 'Internal server error' });
+        res.status(500).json({ success: false, error: true, message: error.message || 'Internal server error' });
     }
 }
 
