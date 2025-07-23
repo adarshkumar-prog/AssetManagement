@@ -89,12 +89,15 @@ exports.getAllAssetAssignToSpecificUser = async(req, res) => {
         }
         const assignedAsset = await AssetAssignment.find({ assignedTo: userId })
             .populate('assetId', 'name serialNumber status')
-            .populate('assignedTo', 'firstName lastName email');
         if (assignedAsset.length === 0) {
             return res.status(404).json({ success: true, error: false, message: 'No assets assigned to this user' });
         }
         const assignedAssets = assignedAsset.map(assignment => ({
-            asset: assignment.assetId,
+            asset: {
+                name: assignment.assetId.name,
+                serialNumber: assignment.assetId.serialNumber,
+                status: assignment.assetId.status
+            },
             assignedAt: assignment.assignedAt,
             status: assignment.status,
             unassignedAt: assignment.unassignedAt,
@@ -104,7 +107,7 @@ exports.getAllAssetAssignToSpecificUser = async(req, res) => {
                 email: assignment.assignedTo.email
             }
         }));
-        res.status(200).json({ success: true, error: false, assignedAssets:assignedAssets.map(assignedAssets => assetAssignmentToDTO(assignedAssets)) });
+        res.status(200).json({ success: true, error: false, assignedAssets });
     }catch(error) {
         console.error('Error fetching assigned assets:', error);
         res.status(500).json({ success: false, error: true, message: 'Internal server error' });
@@ -257,6 +260,28 @@ exports.getAllCurrentlyAssignedAssets = async(req, res) => {
   }
   catch(error) {
     console.error('Error fetching currently assigned assets:', error);
+    res.status(500).json({ success: false, error: true, message: 'Internal server error' });
+  }
+}
+
+exports.getAllAssignedToLoginUser = async(req, res) => {
+  const userId = req.user._id;
+  try {
+    const assignedAssets = await AssetAssignment.find({ assignedTo: userId, status: 'Assigned' })
+      .populate('assetId', 'name serialNumber status')
+      .populate('assignedTo', 'firstName lastName email');
+
+    if (assignedAssets.length === 0) {
+      return res.status(404).json({ success: true, error: false, message: 'No assets assigned to you' });
+    }
+
+    res.status(200).json({
+      success: true,
+      error: false,
+      assignedAssets: assignedAssets.map(assignment => assetAssignmentToDTO(assignment))
+    });
+  } catch (error) {
+    console.error('Error fetching assets assigned to user:', error);
     res.status(500).json({ success: false, error: true, message: 'Internal server error' });
   }
 }
