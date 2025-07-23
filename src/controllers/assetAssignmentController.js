@@ -100,12 +100,7 @@ exports.getAllAssetAssignToSpecificUser = async(req, res) => {
             },
             assignedAt: assignment.assignedAt,
             status: assignment.status,
-            unassignedAt: assignment.unassignedAt,
-            assignedTo: {
-                firstName: assignment.assignedTo.firstName,
-                lastName: assignment.assignedTo.lastName,
-                email: assignment.assignedTo.email
-            }
+            unassignedAt: assignment.unassignedAt
         }));
         res.status(200).json({ success: true, error: false, assignedAssets });
     }catch(error) {
