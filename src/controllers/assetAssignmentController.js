@@ -90,7 +90,7 @@ exports.getAllAssetAssignToSpecificUser = async(req, res) => {
         const assignedAsset = await AssetAssignment.find({ assignedTo: userId })
             .populate('assetId', 'name serialNumber status')
         if (assignedAsset.length === 0) {
-            return res.status(404).json({ success: true, error: false, message: 'No assets assigned to this user' });
+            return res.status(200).json({ success: true, error: false, message: 'No assets assigned to this user' });
         }
         const assignedAssets = assignedAsset.map(assignment => ({
             asset: {
@@ -140,7 +140,7 @@ exports.getAllPreviouslyAssignedAsset = async(req, res) => {
             .populate('assetId', 'name serialNumber status')
             .populate('assignedTo', 'firstName lastName email');
         if (previouslyAssignedAsset.length === 0) {
-            return res.status(404).json({ success: true, error: false, message: 'No previously assigned assets found for this user' });
+            return res.status(200).json({ success: true, error: false, message: 'No previously assigned assets found for this user' });
         }
         const previouslyAssignedAssets = previouslyAssignedAsset.map(assignment => ({
             asset: assignment.assetId,
@@ -165,7 +165,7 @@ exports.userWantsToReturn = async(req, res) => {
   try{
     const asset = await Asset.findById(assetId);
     if (!asset) {
-      return res.status(404).json({ success: false, error: true, message: 'Asset not found' });
+      return res.status(400).json({ success: false, error: true, message: 'Asset not found' });
     }
     if (asset.status !== 'Assigned') {
       return res.status(400).json({ success: false, error: true, message: 'Asset is not currently assigned' });
@@ -213,7 +213,7 @@ exports.getAllAssetAssignedBetweenDates = async(req, res) => {
       if (assignment.unassignedAt) assignment.unassignedAt = assignment.unassignedAt.toISOString();
     });
     if (assignedAssets.length === 0) {
-      return res.status(404).json({ success: true, error: false, message: 'No assets assigned between the given dates' });
+      return res.status(200).json({ success: true, error: false, message: 'No assets assigned between the given dates' });
     }
     res.status(200).json({
       success: true,

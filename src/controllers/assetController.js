@@ -108,7 +108,7 @@ exports.getAssetById = async (req, res) => {
     const asset = await Asset.findById(assetId);
 
     if (!asset) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
         error: true,
         message: 'Asset not found'
