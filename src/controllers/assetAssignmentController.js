@@ -267,7 +267,7 @@ exports.getAllAssignedToLoginUser = async(req, res) => {
       .populate('assignedTo', 'firstName lastName email');
 
     if (assignedAssets.length === 0) {
-      return res.status(400).json({ success: true, error: false, message: 'No assets assigned to you' });
+      return res.status(200).json({ success: true, error: false, message: 'No assets assigned to you' });
     }
 
     res.status(200).json({
