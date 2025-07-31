@@ -121,15 +121,15 @@ assetAssignmentRouter.get('/assets/assigned/:userId', userAuth, assetAssignmentC
  *       500:
  *         description: Internal server error
  */
-assetAssignmentRouter.get('/assetsIsAvailable', userAuth, assetAssignmentController.getAllAvailableAsset);
+assetAssignmentRouter.get('/available-assets', userAuth, assetAssignmentController.getAllAvailableAsset);
 
 // Get all previously assigned assets of a user (admin only)
-assetAssignmentRouter.get('/assets/previouslyAssigned/:userId', userAuth, assetAssignmentController.getAllPreviouslyAssignedAsset);
+assetAssignmentRouter.get('/assets/previously-assigned/:userId', userAuth, assetAssignmentController.getAllPreviouslyAssignedAsset);
 
 // user wants to return an asset
 assetAssignmentRouter.post('/assets/:id/return', userAuth, assetAssignmentController.userWantsToReturn);
 
 // Get all asset assigned and unassigned between certain time period (admin only)
-assetAssignmentRouter.get('/asset/assignedBetween', userAuth, assetAssignmentController.getAllAssetAssignedBetweenDates);
+assetAssignmentRouter.get('/asset/assigned-between', userAuth, assetAssignmentController.getAllAssetAssignedBetweenDates);
 
 module.exports = assetAssignmentRouter;

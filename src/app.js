@@ -27,9 +27,6 @@ const assetRouter = require("./routes/asset");
 const assetAssignmentRouter = require("./routes/assetAssignment");
 const assetReportingRouter = require("./routes/assetReporting");
 
-app.get("/api/ping", (req, res) => {
-  res.json({ success: true, message: "Backend is live" });
-});
 app.use("/api", authRouter);
 app.use("/api", profileRouter);
 app.use("/api", assetRouter);
