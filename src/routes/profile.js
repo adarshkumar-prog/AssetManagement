@@ -32,7 +32,7 @@ profileRouter.get("/api/users/getMyProfile", userAuth, profileController.getMyPr
  *       200:
  *         description: User profile updated successfully
  */
-profileRouter.put("/api/users/:id",userAuth, profileController.updateUser);
+profileRouter.put("/users/:id",userAuth, profileController.updateUser);
 
 
 // Get user by ID(admin only)
@@ -54,7 +54,7 @@ profileRouter.put("/api/users/:id",userAuth, profileController.updateUser);
  *       200:
  *         description: User fetched successfully
  */
-profileRouter.get("/api/users/:id", userAuth, profileController.getUserById)
+profileRouter.get("/users/:id", userAuth, profileController.getUserById)
 
 // Get all users (admin only)
 /**
@@ -68,16 +68,16 @@ profileRouter.get("/api/users/:id", userAuth, profileController.getUserById)
  *       200:
  *         description: Users fetched successfully
  */
-profileRouter.get("/api/users", userAuth, profileController.getAllUsers)
+profileRouter.get("/users", userAuth, profileController.getAllUsers)
 
 // Change password
-profileRouter.post("/api/users/change-password", userAuth, profileController.changePassword);
+profileRouter.post("/users/change-password", userAuth, profileController.changePassword);
 
 //Forgot Password
-profileRouter.post("/api/users/forgot-password", profileController.sendVerificationCode);
+profileRouter.post("/users/forgot-password", profileController.sendVerificationCode);
 
 //Validate Code and Reset Password
-profileRouter.post("/api/users/forgot-password/reset-password", profileController.validateCodeAndResetPassword);
+profileRouter.post("/users/forgot-password/reset-password", profileController.validateCodeAndResetPassword);
 
 
 // Delete user (admin only)
@@ -99,6 +99,6 @@ profileRouter.post("/api/users/forgot-password/reset-password", profileControlle
  *       200:
  *         description: User deleted successfully
  */
-profileRouter.delete("/api/users/:id",userAuth, profileController.deleteUser);
+profileRouter.delete("/users/:id",userAuth, profileController.deleteUser);
 
 module.exports = profileRouter;

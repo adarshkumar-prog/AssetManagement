@@ -20,7 +20,7 @@ const authController = require("../controllers/authController");
  *       201:
  *         description: User registered successfully
  */
-authRouter.post("/api/auth/register", authController.register);
+authRouter.post("/auth/register", authController.register);
 
 // User login (returns JWT token)
 /**
@@ -45,6 +45,6 @@ authRouter.post("/api/auth/register", authController.register);
  *         description: Successful login
  */
 
-authRouter.post("/api/auth/login", authController.login); 
+authRouter.post("/auth/login", authController.login); 
 
 module.exports = authRouter;

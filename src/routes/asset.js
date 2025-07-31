@@ -39,7 +39,7 @@ const assetController = require('../controllers/assetController');
  *       403:
  *         description: Forbidden - Only admin can create assets
  */
-assetRouter.post('/api/assets', userAuth, assetController.createAsset);
+assetRouter.post('/assets', userAuth, assetController.createAsset);
 
 //Get all assets with filtering options (admin only)
 /**
@@ -70,7 +70,7 @@ assetRouter.post('/api/assets', userAuth, assetController.createAsset);
  *       200:
  *         description: Successfully retrieved assets
  */
-assetRouter.get('/api/assets', userAuth, assetController.getAssetsWithFilterOptions);
+assetRouter.get('/assets', userAuth, assetController.getAssetsWithFilterOptions);
 
 //Get asset by ID (admin only)
 /**
@@ -97,7 +97,7 @@ assetRouter.get('/api/assets', userAuth, assetController.getAssetsWithFilterOpti
  *       500:
  *         description: Internal server error
  */
-assetRouter.get('/api/assets/:id', userAuth, assetController.getAssetById);
+assetRouter.get('/assets/:id', userAuth, assetController.getAssetById);
 
 // Update asset information (admin only)
 /** * @swagger
@@ -143,7 +143,7 @@ assetRouter.get('/api/assets/:id', userAuth, assetController.getAssetById);
  *       500:
  *         description: Internal server error
  */
-assetRouter.patch('/api/assets/:id', userAuth, assetController.updateAsset);
+assetRouter.patch('/assets/:id', userAuth, assetController.updateAsset);
 
 //Delete asset (admin only)
 /**
@@ -168,6 +168,6 @@ assetRouter.patch('/api/assets/:id', userAuth, assetController.updateAsset);
  *       404:
  *         description: Not Found - Asset not found
  */
-assetRouter.delete('/api/assets/:id', userAuth, assetController.deleteAsset);
+assetRouter.delete('/assets/:id', userAuth, assetController.deleteAsset);
 
 module.exports = assetRouter;

@@ -5,10 +5,10 @@ const assetAssignmentController = require('../controllers/assetAssignmentControl
 
 
 //get all asset assigned currently
-assetAssignmentRouter.get('/api/getAllCurrentlyAssigned', userAuth, assetAssignmentController.getAllCurrentlyAssignedAssets);
+assetAssignmentRouter.get('/getAllCurrentlyAssigned', userAuth, assetAssignmentController.getAllCurrentlyAssignedAssets);
 
 //asset assigned to login user
-assetAssignmentRouter.get('/api/getAllAssignedToLoginUser', userAuth, assetAssignmentController.getAllAssignedToLoginUser);
+assetAssignmentRouter.get('/getAllAssignedToLoginUser', userAuth, assetAssignmentController.getAllAssignedToLoginUser);
 
 // Assign asset to a user(admin only)
 /**
@@ -47,7 +47,7 @@ assetAssignmentRouter.get('/api/getAllAssignedToLoginUser', userAuth, assetAssig
  *     security:  
  *       - bearerAuth: [] 
  */
-assetAssignmentRouter.post('/api/assets/:id/assign', userAuth, assetAssignmentController.assignAsset);
+assetAssignmentRouter.post('/assets/:id/assign', userAuth, assetAssignmentController.assignAsset);
 
 // Unassign asset from a user(admin only)
 /**
@@ -76,7 +76,7 @@ assetAssignmentRouter.post('/api/assets/:id/assign', userAuth, assetAssignmentCo
  *     security:  
  *       - bearerAuth: []
  */
-assetAssignmentRouter.post('/api/assets/:id/unassign', userAuth, assetAssignmentController.assetUnassign);
+assetAssignmentRouter.post('/assets/:id/unassign', userAuth, assetAssignmentController.assetUnassign);
 
 // Get all assets assigned to a specific user(admin only)
 /**
@@ -103,7 +103,7 @@ assetAssignmentRouter.post('/api/assets/:id/unassign', userAuth, assetAssignment
  *       500:
  *         description: Internal server error
  */
-assetAssignmentRouter.get('/api/assets/assigned/:userId', userAuth, assetAssignmentController.getAllAssetAssignToSpecificUser);
+assetAssignmentRouter.get('/assets/assigned/:userId', userAuth, assetAssignmentController.getAllAssetAssignToSpecificUser);
 
 // Get all available (unassigned) assets
 /**
@@ -121,15 +121,15 @@ assetAssignmentRouter.get('/api/assets/assigned/:userId', userAuth, assetAssignm
  *       500:
  *         description: Internal server error
  */
-assetAssignmentRouter.get('/api/assetsIsAvailable', userAuth, assetAssignmentController.getAllAvailableAsset);
+assetAssignmentRouter.get('/assetsIsAvailable', userAuth, assetAssignmentController.getAllAvailableAsset);
 
 // Get all previously assigned assets of a user (admin only)
-assetAssignmentRouter.get('/api/assets/previouslyAssigned/:userId', userAuth, assetAssignmentController.getAllPreviouslyAssignedAsset);
+assetAssignmentRouter.get('/assets/previouslyAssigned/:userId', userAuth, assetAssignmentController.getAllPreviouslyAssignedAsset);
 
 // user wants to return an asset
-assetAssignmentRouter.post('/api/assets/:id/return', userAuth, assetAssignmentController.userWantsToReturn);
+assetAssignmentRouter.post('/assets/:id/return', userAuth, assetAssignmentController.userWantsToReturn);
 
 // Get all asset assigned and unassigned between certain time period (admin only)
-assetAssignmentRouter.get('/api/asset/assignedBetween', userAuth, assetAssignmentController.getAllAssetAssignedBetweenDates);
+assetAssignmentRouter.get('/asset/assignedBetween', userAuth, assetAssignmentController.getAllAssetAssignedBetweenDates);
 
 module.exports = assetAssignmentRouter;

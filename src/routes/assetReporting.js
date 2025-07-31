@@ -22,7 +22,7 @@ const assetReportingController = require('../controllers/assetReportingControlle
  *     security:
  *       - bearerAuth: []
  */
-assetReportingRouter.get('/api/reports/assets-by-status', userAuth, assetReportingController.getCountOfAssetByStatus);
+assetReportingRouter.get('/reports/assets-by-status', userAuth, assetReportingController.getCountOfAssetByStatus);
 
 //Get count of assets by type(admin only)
 /**
@@ -42,7 +42,7 @@ assetReportingRouter.get('/api/reports/assets-by-status', userAuth, assetReporti
  *     security:
  *       - bearerAuth: []
  */
-assetReportingRouter.get('/api/reports/assets-by-type', userAuth, assetReportingController.getCountOfAssetByType);
+assetReportingRouter.get('/reports/assets-by-type', userAuth, assetReportingController.getCountOfAssetByType);
 
 //Get assignment summary for all users(admin only)
 /**
@@ -62,6 +62,6 @@ assetReportingRouter.get('/api/reports/assets-by-type', userAuth, assetReporting
  *     security:
  *       - bearerAuth: []
  */
-assetReportingRouter.get('/api/reports/assignment-summary', userAuth, assetReportingController.assignmentSummary);
+assetReportingRouter.get('/reports/assignment-summary', userAuth, assetReportingController.assignmentSummary);
 
 module.exports = assetReportingRouter;

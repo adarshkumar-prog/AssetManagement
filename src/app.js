@@ -6,12 +6,15 @@ const port = process.env.PORT || 3000;
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger'); 
 const cors = require('cors');
+const calmapi = require('calmapi');
+
+
+
 
 
 app.use(cors({
   origin: '*'
 }));
-
 
 
 app.use(express.json());
@@ -24,11 +27,11 @@ const assetRouter = require("./routes/asset");
 const assetAssignmentRouter = require("./routes/assetAssignment");
 const assetReportingRouter = require("./routes/assetReporting");
 
-app.use("/", authRouter);
-app.use("/", profileRouter);
-app.use("/", assetRouter);
-app.use("/", assetAssignmentRouter);
-app.use("/", assetReportingRouter);
+app.use("/api", authRouter);
+app.use("/api", profileRouter);
+app.use("/api", assetRouter);
+app.use("/api", assetAssignmentRouter);
+app.use("/api", assetReportingRouter);
 
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
