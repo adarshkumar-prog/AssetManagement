@@ -8,7 +8,7 @@ const assetAssignmentController = require('../controllers/assetAssignmentControl
 assetAssignmentRouter.get('/all-currently-asigned', userAuth, assetAssignmentController.getAllCurrentlyAssignedAssets);
 
 //asset assigned to login user
-assetAssignmentRouter.get('/getAllAssignedToLoginUser', userAuth, assetAssignmentController.getAllAssignedToLoginUser);
+assetAssignmentRouter.get('/assigned-to-loggedin-user', userAuth, assetAssignmentController.getAllAssignedToLoginUser);
 
 // Assign asset to a user(admin only)
 /**
