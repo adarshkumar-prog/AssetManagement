@@ -1,0 +1,1 @@
+app.use("/asset", index);

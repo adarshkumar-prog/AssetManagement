@@ -244,7 +244,7 @@ exports.getAllCurrentlyAssignedAssets = async(req, res) => {
     });
 
     if (currentlyAssignedAssets.length === 0) {
-      return res.status(404).json({ success: true, error: false, message: 'No currently assigned assets found' });
+      return res.status(400).json({ success: true, error: false, message: 'No currently assigned assets found' });
     }
 
     res.status(200).json({

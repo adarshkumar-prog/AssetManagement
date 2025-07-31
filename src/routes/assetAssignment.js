@@ -5,7 +5,7 @@ const assetAssignmentController = require('../controllers/assetAssignmentControl
 
 
 //get all asset assigned currently
-assetAssignmentRouter.get('/getAllCurrentlyAssigned', userAuth, assetAssignmentController.getAllCurrentlyAssignedAssets);
+assetAssignmentRouter.get('/all-currently-asigned', userAuth, assetAssignmentController.getAllCurrentlyAssignedAssets);
 
 //asset assigned to login user
 assetAssignmentRouter.get('/getAllAssignedToLoginUser', userAuth, assetAssignmentController.getAllAssignedToLoginUser);
