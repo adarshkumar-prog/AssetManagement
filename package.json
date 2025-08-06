@@ -14,7 +14,6 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "calmapi": "^0.2.4",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
